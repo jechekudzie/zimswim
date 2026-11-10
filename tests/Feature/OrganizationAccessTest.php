@@ -112,6 +112,14 @@ it('builds the organisation tree top down with swimmers rolled up', function ():
     [$national, $province, $club] = organizationTree();
     $emptyProvince = Organization::factory()->province($national)->create();
 
+    /*
+     * Children are ordered by name, so the two provinces are named rather
+     * than left to the factory: without this the assertions below depend on
+     * which random name happens to sort first.
+     */
+    $province->update(['name' => 'Aardvark Province']);
+    $emptyProvince->update(['name' => 'Zebra Province']);
+
     Member::factory()->count(3)->create([
         'organization_id' => $club->getKey(),
         'status' => MemberStatus::Active,

@@ -1,12 +1,33 @@
-import { Head } from '@inertiajs/react';
-import { Award, ClipboardList, GraduationCap, Timer } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import {
+    ArrowRight,
+    Award,
+    BookOpen,
+    ClipboardList,
+    GraduationCap,
+    Timer,
+} from 'lucide-react';
 
 import { FlagRule } from '@/components/flag-rule';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Section } from '@/components/public/section';
 import PublicLayout from '@/layouts/public-layout';
 import { photos } from '@/lib/photos';
+import officialsRoutes from '@/routes/officials';
 import type { Option } from '@/types';
+
+type Course = {
+    title: string;
+    summary: string | null;
+    category_label: string | null;
+    grade: string | null;
+    lessons_count: number;
+    exam_minutes: number;
+    pass_mark: number;
+    practical_sessions_required: number;
+    exam_ready: boolean;
+};
 
 type Category = {
     value: string;
@@ -44,10 +65,12 @@ export default function Officials({
     categories,
     grades,
     registeredCount,
+    courses,
 }: {
     categories: Category[];
     grades: Option[];
     registeredCount: number;
+    courses: Course[];
 }) {
     return (
         <PublicLayout
@@ -58,6 +81,14 @@ export default function Officials({
             ]}
             title="New to officiating?"
             description="You do not need to know everything on day one. Every qualified official started as a learner, and there is a place for you on the pool deck."
+            heroActions={
+                <Button asChild size="lg">
+                    <Link href={officialsRoutes.apply()}>
+                        Apply to officiate
+                        <ArrowRight className="size-4" />
+                    </Link>
+                </Button>
+            }
         >
             <Head title="Officials" />
 
@@ -85,7 +116,75 @@ export default function Officials({
                 </div>
             </Section>
 
-            <Section tone="surface">
+            {courses.length > 0 && (
+                <Section tone="surface">
+                    <div>
+                        <FlagRule />
+                        <h2 className="mt-4 text-2xl font-bold tracking-tight">
+                            Courses in the Academy
+                        </h2>
+                        <p className="mt-2 max-w-3xl text-muted-foreground">
+                            Each course is lessons you work through in your own
+                            time, a written exam, and sessions signed off at the
+                            poolside. Your place on one is opened for you the
+                            day your application is approved.
+                        </p>
+
+                        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                            {courses.map((course) => (
+                                <article
+                                    key={course.title}
+                                    className="flex flex-col rounded-xl border border-border bg-card p-6"
+                                >
+                                    <BookOpen className="size-5 text-primary" />
+                                    <h3 className="mt-4 font-semibold text-balance">
+                                        {course.title}
+                                    </h3>
+                                    {course.summary && (
+                                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                                            {course.summary}
+                                        </p>
+                                    )}
+
+                                    <dl className="mt-5 space-y-1.5 text-xs text-muted-foreground">
+                                        <div className="flex justify-between gap-3">
+                                            <dt>Lessons</dt>
+                                            <dd className="font-medium text-foreground tabular-nums">
+                                                {course.lessons_count}
+                                            </dd>
+                                        </div>
+                                        <div className="flex justify-between gap-3">
+                                            <dt>Exam</dt>
+                                            <dd className="font-medium text-foreground tabular-nums">
+                                                {course.exam_minutes} min ·{' '}
+                                                {course.pass_mark}% to pass
+                                            </dd>
+                                        </div>
+                                        <div className="flex justify-between gap-3">
+                                            <dt>Poolside sessions</dt>
+                                            <dd className="font-medium text-foreground tabular-nums">
+                                                {
+                                                    course.practical_sessions_required
+                                                }
+                                            </dd>
+                                        </div>
+                                    </dl>
+
+                                    {!course.exam_ready && (
+                                        <p className="mt-4 text-xs text-muted-foreground">
+                                            The exam for this one is still being
+                                            set. Lessons and poolside sessions
+                                            can start now.
+                                        </p>
+                                    )}
+                                </article>
+                            ))}
+                        </div>
+                    </div>
+                </Section>
+            )}
+
+            <Section>
                 <div>
                     <FlagRule />
                     <h2 className="mt-4 text-2xl font-bold tracking-tight">

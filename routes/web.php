@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\GalaEntryController;
 use App\Http\Controllers\Admin\GalaSanctionController;
 use App\Http\Controllers\Admin\MeetFileController;
 use App\Http\Controllers\Admin\MemberController;
+use App\Http\Controllers\Admin\OfficialApplicationController;
 use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\Admin\OrganizationSwitchController;
 use App\Http\Controllers\Admin\RelayTeamController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\Public\CalendarController;
 use App\Http\Controllers\Public\DirectoryController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\NewsController;
+use App\Http\Controllers\Public\OfficialApplicationController as PublicOfficialApplicationController;
 use App\Http\Controllers\Public\OfficialsPathwayController;
 use App\Http\Controllers\Public\RecordController;
 use App\Http\Controllers\Public\ResultsController;
@@ -48,6 +50,16 @@ Route::get('results/{gala}', [ResultsController::class, 'show'])->name('results.
 Route::get('results/{gala}/live', [ResultsController::class, 'live'])->name('results.live');
 Route::get('verify/{certificate}', [CertificateController::class, 'verify'])->name('certificates.verify');
 Route::get('officials', OfficialsPathwayController::class)->name('officials');
+
+/*
+ * Applying to officiate. Open to anybody: an applicant has no account until
+ * the technical committee approves them, which is the point of the queue.
+ */
+Route::get('officials/apply', [PublicOfficialApplicationController::class, 'create'])->name('officials.apply');
+Route::post('officials/apply', [PublicOfficialApplicationController::class, 'store'])
+    ->middleware('throttle:6,1')
+    ->name('officials.apply.store');
+Route::get('officials/applied', [PublicOfficialApplicationController::class, 'applied'])->name('officials.applied');
 Route::get('news', [NewsController::class, 'index'])->name('news.index');
 Route::get('news/{post}', [NewsController::class, 'show'])->name('news.show');
 
@@ -92,9 +104,19 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
             Route::get('venues', [VenueController::class, 'export'])->name('venues');
             Route::get('galas', [GalaController::class, 'export'])->name('galas');
             Route::get('officials', [TechnicalOfficialController::class, 'export'])->name('officials');
+            Route::get('official-applications', [OfficialApplicationController::class, 'export'])->name('official-applications');
             Route::get('records', [SwimRecordController::class, 'export'])->name('records');
             Route::get('users', [UserController::class, 'export'])->name('users');
         });
+
+        /*
+         * The queue of people asking to join the officials register.
+         * Approving one opens an account, so it sits behind the same
+         * permission as creating an official by hand.
+         */
+        Route::get('official-applications', [OfficialApplicationController::class, 'index'])->name('official-applications.index');
+        Route::post('official-applications/{application}/approve', [OfficialApplicationController::class, 'approve'])->name('official-applications.approve');
+        Route::post('official-applications/{application}/decline', [OfficialApplicationController::class, 'decline'])->name('official-applications.decline');
 
         Route::resource('organizations', OrganizationController::class)->except(['show']);
         Route::resource('members', MemberController::class)->except(['show']);

@@ -3,6 +3,7 @@ import {
     Building2,
     CalendarDays,
     ClipboardCheck,
+    ClipboardList,
     Globe,
     GraduationCap,
     LayoutGrid,
@@ -57,6 +58,12 @@ export function AppSidebar() {
                     title: 'Officials',
                     href: admin.officials.index(),
                     icon: ClipboardCheck,
+                    permission: 'officials.view',
+                },
+                {
+                    title: 'Applications',
+                    href: admin.officialApplications.index(),
+                    icon: ClipboardList,
                     permission: 'officials.view',
                 },
                 {

@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import {
     ArrowRight,
+    Award,
     CalendarDays,
     ClipboardCheck,
     MapPin,
@@ -60,6 +61,11 @@ type HomeProps = {
         pool_length: number | null;
         lanes: number | null;
     }[];
+    officialsEntry: {
+        category: string;
+        minimum_age: number;
+        learner_sessions: number;
+    };
     sponsors: { name: string; slug: string }[];
     stats: {
         provinces: number;
@@ -91,6 +97,7 @@ export default function Home({
     news: articles,
     provinces,
     venues: nationalVenues,
+    officialsEntry,
     sponsors,
     stats,
 }: HomeProps) {
@@ -129,6 +136,31 @@ export default function Home({
             cta: 'Venue register',
             photo: photos.palms,
             icon: MapPin,
+        },
+    ];
+
+    /*
+     * The three things that decide whether a reader thinks they are eligible
+     * to officiate: how old you have to be, how much deck time it costs, and
+     * whether the accreditation travels. The first two come from the
+     * certification standards, so the invitation cannot drift from the rules
+     * the register enforces.
+     */
+    const officiatingFacts = [
+        {
+            icon: Timer,
+            term: `From age ${officialsEntry.minimum_age}`,
+            detail: `The youngest a ${officialsEntry.category.toLowerCase()} can be accredited. There is no upper age, and no requirement ever to have raced.`,
+        },
+        {
+            icon: ClipboardCheck,
+            term: `${officialsEntry.learner_sessions} learner sessions`,
+            detail: 'Worked poolside next to a qualified official, at galas your club is already attending, before you sit the exam.',
+        },
+        {
+            icon: Award,
+            term: 'One national standard',
+            detail: 'The same requirements in every province, and the accreditation is recognised countrywide once you hold it.',
         },
     ];
 
@@ -403,6 +435,79 @@ export default function Home({
                         ))}
                     </div>
                 )}
+            </Section>
+
+            {/*
+             * The recruitment ask, placed directly under the fixtures that
+             * motivate it: a reader who has just seen four galas coming up is
+             * the reader most likely to hear that those galas need a deck
+             * crew. Deep water rather than the ink used for the records band
+             * below, so two dark grounds on one page stay distinguishable.
+             */}
+            <Section tone="deep">
+                <div className="grid gap-12 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-16">
+                    <Reveal>
+                        <FlagRule className="h-1.5 w-20" />
+                        <h2 className="mt-4 text-3xl font-bold tracking-tight text-balance text-white sm:text-4xl">
+                            Somebody has to time the race
+                        </h2>
+                        <p className="mt-5 max-w-xl leading-relaxed text-white/70">
+                            Every gala on this calendar is run by volunteers at
+                            the water's edge — timekeepers, inspectors of turns,
+                            judges of stroke, a starter and a referee. Short a
+                            crew and the swimmers wait behind the blocks.
+                        </p>
+                        <p className="mt-4 max-w-xl leading-relaxed text-white/70">
+                            Almost every national referee in the country started
+                            with a stopwatch and one Saturday morning.
+                        </p>
+
+                        <div className="mt-9 flex flex-wrap gap-3">
+                            <Button asChild size="lg">
+                                <Link href={officials()}>
+                                    Start as a{' '}
+                                    {officialsEntry.category.toLowerCase()}
+                                    <ArrowRight className="size-4" />
+                                </Link>
+                            </Button>
+                            <Button
+                                asChild
+                                size="lg"
+                                variant="outline"
+                                className="border-white/30 bg-white/5 text-white hover:bg-white/15 hover:text-white"
+                            >
+                                <Link href={clubs()}>Find a club near you</Link>
+                            </Button>
+                        </div>
+
+                        <p className="mt-5 max-w-lg text-sm text-white/70">
+                            Officials are accredited through an affiliated club,
+                            so joining one is the first step if you are not
+                            already a member.
+                        </p>
+                    </Reveal>
+
+                    <Reveal delay={120}>
+                        <dl className="divide-y divide-white/15 overflow-hidden rounded-2xl border border-white/15 bg-white/5 backdrop-blur">
+                            {officiatingFacts.map((fact) => (
+                                <div
+                                    key={fact.term}
+                                    className="flex gap-4 p-6 sm:p-7"
+                                >
+                                    <fact.icon className="mt-0.5 size-5 shrink-0 text-brand-gold" />
+                                    <div>
+                                        <dt className="font-semibold text-white">
+                                            {fact.term}
+                                        </dt>
+                                        <dd className="mt-1.5 text-sm leading-relaxed text-white/70">
+                                            {fact.detail}
+                                        </dd>
+                                    </div>
+                                </div>
+                            ))}
+                        </dl>
+                    </Reveal>
+                </div>
             </Section>
 
             {/* Pathways */}

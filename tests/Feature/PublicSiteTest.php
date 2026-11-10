@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\GalaLevel;
+use App\Enums\OfficialCategory;
 use App\Models\Gala;
 use App\Models\GalaEvent;
 use App\Models\Post;
@@ -16,6 +17,16 @@ it('shows the home page to a visitor who is not signed in', function (): void {
     $this->get(route('home'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page->component('public/home'));
+});
+
+it('invites visitors to officiate on the entry requirements the register enforces', function (): void {
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('officialsEntry.category', OfficialCategory::Timekeeper->label())
+            ->where('officialsEntry.minimum_age', OfficialCategory::Timekeeper->minimumAge())
+            ->where('officialsEntry.learner_sessions', OfficialCategory::Timekeeper->learnerSessionsRequired())
+            ->etc());
 });
 
 it('lists only published galas on the public calendar', function (): void {

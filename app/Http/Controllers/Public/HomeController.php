@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Public;
 
 use App\Enums\GalaLevel;
+use App\Enums\OfficialCategory;
 use App\Enums\OrganizationType;
 use App\Http\Controllers\Controller;
 use App\Models\Gala;
@@ -82,6 +83,7 @@ class HomeController extends Controller
                     'pool_length' => $venue->pool_length,
                     'lanes' => $venue->lanes,
                 ]),
+            'officialsEntry' => $this->officialsEntry(),
             'sponsors' => Sponsor::query()->active()->get(['name', 'slug', 'website', 'tier']),
             'stats' => [
                 'provinces' => Organization::query()->ofType(OrganizationType::Province)->active()->count(),
@@ -92,6 +94,28 @@ class HomeController extends Controller
                 'galas' => Gala::query()->published()->upcoming()->count(),
             ],
         ]);
+    }
+
+    /**
+     * What it actually takes to start officiating.
+     *
+     * Read from the certification standards rather than written into the
+     * page, so the invitation on the home page cannot promise an age or a
+     * number of learner sessions the register will not accept. Timekeeper is
+     * the entry point: it is the only category with no prerequisite that a
+     * school-age member can hold.
+     *
+     * @return array{category: string, minimum_age: int, learner_sessions: int}
+     */
+    private function officialsEntry(): array
+    {
+        $entry = OfficialCategory::Timekeeper;
+
+        return [
+            'category' => $entry->label(),
+            'minimum_age' => $entry->minimumAge(),
+            'learner_sessions' => $entry->learnerSessionsRequired(),
+        ];
     }
 
     /**

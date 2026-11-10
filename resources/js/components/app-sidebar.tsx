@@ -1,4 +1,5 @@
 import {
+    BookOpen,
     Building2,
     CalendarDays,
     ClipboardCheck,
@@ -14,10 +15,10 @@ import {
 
 import { Link } from '@inertiajs/react';
 
-import { BrandLogo } from '@/components/brand-logo';
+import { BrandWordmark } from '@/components/brand-wordmark';
 import { NavFooter } from '@/components/nav-footer';
 import AppLogoIcon from '@/components/app-logo-icon';
-import { NavMain } from '@/components/nav-main';
+import { NavMain, type NavGroup } from '@/components/nav-main';
 import { OrganizationSwitcher } from '@/components/organization-switcher';
 import {
     Sidebar,
@@ -32,75 +33,111 @@ import academy from '@/routes/academy';
 import admin from '@/routes/admin';
 import type { NavItem } from '@/types';
 
+type GuardedItem = NavItem & { permission?: string };
+
 export function AppSidebar() {
     const { can } = usePermissions();
 
-    const items: (NavItem & { permission?: string })[] = [
-        { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
+    const groups: { label?: string; items: GuardedItem[] }[] = [
         {
-            title: 'Swimmers',
-            href: admin.members.index(),
-            icon: Waves,
-            permission: 'members.view',
+            items: [
+                { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
+            ],
         },
         {
-            title: 'Officials',
-            href: admin.officials.index(),
-            icon: ClipboardCheck,
-            permission: 'officials.view',
+            label: 'Register',
+            items: [
+                {
+                    title: 'Swimmers',
+                    href: admin.members.index(),
+                    icon: Waves,
+                    permission: 'members.view',
+                },
+                {
+                    title: 'Officials',
+                    href: admin.officials.index(),
+                    icon: ClipboardCheck,
+                    permission: 'officials.view',
+                },
+                {
+                    title: 'Organisations',
+                    href: admin.organizations.index(),
+                    icon: Globe,
+                    permission: 'organizations.view',
+                },
+            ],
         },
         {
-            title: 'Galas',
-            href: admin.galas.index(),
-            icon: CalendarDays,
-            permission: 'galas.view',
+            label: 'Competition',
+            items: [
+                {
+                    title: 'Galas',
+                    href: admin.galas.index(),
+                    icon: CalendarDays,
+                    permission: 'galas.view',
+                },
+                {
+                    title: 'Venues',
+                    href: admin.venues.index(),
+                    icon: Building2,
+                    permission: 'venues.view',
+                },
+                {
+                    title: 'Records',
+                    href: admin.records.index(),
+                    icon: Trophy,
+                    permission: 'records.view',
+                },
+            ],
         },
         {
-            title: 'Academy',
-            href: academy.index(),
-            icon: GraduationCap,
+            label: 'Academy',
+            items: [
+                {
+                    title: 'My courses',
+                    href: academy.index(),
+                    icon: GraduationCap,
+                },
+                {
+                    title: 'Course admin',
+                    href: admin.academy.index(),
+                    icon: BookOpen,
+                    permission: 'officials.manage',
+                },
+            ],
         },
         {
-            title: 'Venues',
-            href: admin.venues.index(),
-            icon: Building2,
-            permission: 'venues.view',
-        },
-        {
-            title: 'Records',
-            href: admin.records.index(),
-            icon: Trophy,
-            permission: 'records.view',
-        },
-        {
-            title: 'Organisations',
-            href: admin.organizations.index(),
-            icon: Globe,
-            permission: 'organizations.view',
-        },
-        {
-            title: 'Users',
-            href: admin.users.index(),
-            icon: Users,
-            permission: 'users.view',
-        },
-        {
-            title: 'Roles',
-            href: admin.roles.index(),
-            icon: ShieldCheck,
-            permission: 'roles.manage',
-        },
-        {
-            title: 'Course admin',
-            href: admin.academy.index(),
-            icon: GraduationCap,
-            permission: 'officials.manage',
+            label: 'Access',
+            items: [
+                {
+                    title: 'Users',
+                    href: admin.users.index(),
+                    icon: Users,
+                    permission: 'users.view',
+                },
+                {
+                    title: 'Roles',
+                    href: admin.roles.index(),
+                    icon: ShieldCheck,
+                    permission: 'roles.manage',
+                },
+            ],
         },
     ];
 
-    const visible = items.filter(
-        (item) => item.permission === undefined || can(item.permission),
-    );
+    /*
+     * A group whose every screen is closed to this person is dropped
+     * entirely, so a club secretary is not shown an "Access" heading with
+     * nothing under it.
+     */
+    const visible: NavGroup[] = groups
+        .map((group) => ({
+            label: group.label,
+            items: group.items.filter(
+                (item) => item.permission === undefined || can(item.permission),
+            ),
+        }))
+        .filter((group) => group.items.length > 0);
 
     const footerItems: NavItem[] = [
         { title: 'Public website', href: home(), icon: Newspaper },
@@ -110,16 +147,16 @@ export function AppSidebar() {
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader className="gap-0 p-0">
                 {/*
-                 * The logo is a dark wordmark, and the sidebar is deep water,
-                 * so it is given its own white band rather than a knockout
-                 * copy: the mark keeps its flag colours, and the band reads
-                 * as the masthead the rest of the column hangs from.
+                 * The wordmark is inline SVG, so its ink takes the sidebar's
+                 * own foreground and the flag colours are left alone. No
+                 * white panel is needed to make a dark logo legible on deep
+                 * water.
                  */}
                 <Link
                     href={dashboard()}
-                    className="flex h-16 items-center justify-center border-b border-sidebar-border bg-white px-4 group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:px-2"
+                    className="flex h-18 items-center border-b border-sidebar-border/60 px-4 text-sidebar-foreground transition-opacity group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2 hover:opacity-90"
                 >
-                    <BrandLogo className="h-9 group-data-[collapsible=icon]:hidden" />
+                    <BrandWordmark className="h-13 group-data-[collapsible=icon]:hidden" />
                     <AppLogoIcon className="hidden size-7 group-data-[collapsible=icon]:block" />
                     <span className="sr-only">Zimbabwe Swimming</span>
                 </Link>
@@ -130,7 +167,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={visible} />
+                <NavMain groups={visible} />
             </SidebarContent>
 
             <SidebarFooter>

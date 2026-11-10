@@ -1,0 +1,462 @@
+@import 'tailwindcss';
+
+@import 'tw-animate-css';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+    --font-sans:
+        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+
+    /* Zimbabwe Swimming: the flag palette over deep water. */
+    --color-brand-green: var(--brand-green);
+    --color-brand-gold: var(--brand-gold);
+    --color-brand-red: var(--brand-red);
+    --color-brand-deep: var(--brand-deep);
+    --color-brand-deeper: var(--brand-deeper);
+    --color-brand-water: var(--brand-water);
+    --color-brand-surface: var(--brand-surface);
+    --color-brand-ink: var(--brand-ink);
+    --color-brand-charcoal: var(--brand-charcoal);
+
+    /* Chart series, in fixed order. See the block beside :root. */
+    --color-viz-1: var(--viz-1);
+    --color-viz-2: var(--viz-2);
+    --color-viz-3: var(--viz-3);
+    --color-viz-4: var(--viz-4);
+    --color-viz-5: var(--viz-5);
+    --color-viz-good: var(--viz-good);
+    --color-viz-warn: var(--viz-warn);
+    --color-viz-serious: var(--viz-serious);
+    --color-viz-critical: var(--viz-critical);
+    --color-viz-neutral: var(--viz-neutral);
+    --color-viz-grid: var(--viz-grid);
+}
+
+/*
+ * The palette is the federation's own, taken from the Zimbabwe Swimming
+ * Brand Colours & Website Usage Guide rather than sampled by eye:
+ *
+ *   Zimbabwe Green  #007A3D  primary: buttons, active states, nav accents
+ *   Gold Yellow     #FFC700  accent: badges, medals, callouts
+ *   Heritage Red    #E10600  action and alert: register, join, deadlines
+ *   Charcoal Black  #111111  headings and body text
+ *   Deep Water Blue #0B3B6F  headers, heroes and the dark sections
+ *   Aqua Mist       #E6F4FF  the alternate light section ground
+ *   Cool Gray       #6B7280  secondary text, icons, borders
+ *   Pool White      #FFFFFF  the page
+ *
+ * Two of them cannot be used as the guide prints them on every ground.
+ * Gold reaches 1.6:1 on white, so it is a fill with charcoal on it, never a
+ * label on a pale page. Green and red reach about 2:1 on the navy, so the
+ * dark bands lift both; see .on-dark below.
+ */
+:root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.178 0 90);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.178 0 90);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.178 0 90);
+    --primary: oklch(0.508 0.133 152);
+    --primary-foreground: oklch(1 0 0);
+    --secondary: oklch(0.96 0.021 241);
+    --secondary-foreground: oklch(0.3 0.06 250);
+    --muted: oklch(0.967 0.014 243);
+    --muted-foreground: oklch(0.551 0.023 264);
+    --accent: oklch(0.935 0.032 240);
+    --accent-foreground: oklch(0.3 0.06 250);
+    --destructive: oklch(0.573 0.233 29.5);
+    --destructive-foreground: oklch(1 0 0);
+    --border: oklch(0.905 0.014 247);
+    --input: oklch(0.905 0.014 247);
+    --ring: oklch(0.508 0.133 152);
+    /* Charts keep the water blue in first place so it is never mistaken for
+       the brand green that now carries the interface. */
+    --chart-1: oklch(0.45 0.115 252);
+    --chart-2: oklch(0.508 0.133 152);
+    --chart-3: oklch(0.72 0.15 88);
+    --chart-4: oklch(0.353 0.103 254);
+    --chart-5: oklch(0.573 0.233 29.5);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.98 0.012 243);
+    --sidebar-foreground: oklch(0.21 0.02 255);
+    --sidebar-primary: oklch(0.508 0.133 152);
+    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-accent: oklch(0.94 0.028 241);
+    --sidebar-accent-foreground: oklch(0.3 0.06 250);
+    --sidebar-border: oklch(0.905 0.014 247);
+    --sidebar-ring: oklch(0.508 0.133 152);
+
+    --brand-green: oklch(0.508 0.133 152);
+    --brand-gold: oklch(0.856 0.175 88);
+    --brand-red: oklch(0.573 0.233 29.5);
+    --brand-charcoal: oklch(0.178 0 90);
+    /* Deep Water Blue, and a darker cut of it for heroes and the footer. */
+    --brand-deep: oklch(0.353 0.103 254);
+    --brand-deeper: oklch(0.25 0.085 254);
+    --brand-ink: oklch(0.205 0.072 254);
+    --brand-water: oklch(0.55 0.12 250);
+    --brand-surface: oklch(0.96 0.021 241);
+
+    /*
+     * Chart series, assigned in this order and never cycled.
+     *
+     * Drawn from the brand where the brand has a hue to give, then stepped
+     * until the palette passes on a white card: every slot inside the
+     * lightness band, chroma above the grey floor, and no adjacent pair a
+     * colourblind reader cannot separate. Amber and cyan fall under 3:1
+     * against the card, so every chart using them carries a legend and
+     * direct labels; colour is never the only thing telling marks apart.
+     *
+     * #008844 · #2A5DBF · #E19C00 · #DD1611 · #00A8B8
+     */
+    --viz-1: oklch(0.55 0.145 152);
+    --viz-2: oklch(0.5 0.165 262);
+    --viz-3: oklch(0.74 0.16 78);
+    --viz-4: oklch(0.57 0.225 29);
+    --viz-5: oklch(0.66 0.13 205);
+
+    /* Reserved for state. Never reused as a sixth series. */
+    --viz-good: oklch(0.55 0.145 152);
+    --viz-warn: oklch(0.74 0.16 78);
+    --viz-serious: oklch(0.65 0.18 45);
+    --viz-critical: oklch(0.57 0.225 29);
+    --viz-neutral: oklch(0.7 0.02 255);
+
+    --viz-grid: oklch(0.92 0.012 247);
+}
+
+.dark {
+    --background: oklch(0.205 0.072 254);
+    --foreground: oklch(0.98 0.004 240);
+    --card: oklch(0.25 0.085 254);
+    --card-foreground: oklch(0.98 0.004 240);
+    --popover: oklch(0.25 0.085 254);
+    --popover-foreground: oklch(0.98 0.004 240);
+    --primary: oklch(0.74 0.17 152);
+    --primary-foreground: oklch(0.2 0.07 254);
+    --secondary: oklch(0.31 0.075 253);
+    --secondary-foreground: oklch(0.97 0.006 240);
+    --muted: oklch(0.31 0.075 253);
+    --muted-foreground: oklch(0.78 0.02 250);
+    --accent: oklch(0.35 0.085 253);
+    --accent-foreground: oklch(0.97 0.006 240);
+    --destructive: oklch(0.75 0.19 30);
+    --destructive-foreground: oklch(0.2 0.07 254);
+    --border: oklch(0.36 0.07 253);
+    --input: oklch(0.36 0.07 253);
+    --ring: oklch(0.74 0.17 152);
+    --chart-1: oklch(0.7 0.12 252);
+    --chart-2: oklch(0.74 0.17 152);
+    --chart-3: oklch(0.86 0.175 88);
+    --chart-4: oklch(0.6 0.11 254);
+    --chart-5: oklch(0.75 0.19 30);
+    --sidebar: oklch(0.225 0.078 254);
+    --sidebar-foreground: oklch(0.96 0.006 240);
+    --sidebar-primary: oklch(0.74 0.17 152);
+    --sidebar-primary-foreground: oklch(0.2 0.07 254);
+    --sidebar-accent: oklch(0.32 0.08 253);
+    --sidebar-accent-foreground: oklch(0.96 0.006 240);
+    --sidebar-border: oklch(0.36 0.07 253);
+    --sidebar-ring: oklch(0.74 0.17 152);
+
+    --brand-green: oklch(0.74 0.17 152);
+    --brand-gold: oklch(0.86 0.175 88);
+    --brand-red: oklch(0.75 0.19 30);
+    --brand-charcoal: oklch(0.98 0.004 240);
+    --brand-deep: oklch(0.3 0.09 254);
+    --brand-deeper: oklch(0.225 0.078 254);
+    --brand-ink: oklch(0.19 0.065 254);
+    --brand-water: oklch(0.62 0.12 250);
+    --brand-surface: oklch(0.3 0.075 252);
+
+    /*
+     * The dark series are chosen against the dark card rather than flipped
+     * from the light ones: that band is 0.48–0.67, and amber and red have to
+     * be pushed further apart there than they are on white to stay apart
+     * under deuteranopia.
+     *
+     * #00A24F · #4376D8 · #BF8A00 · #D42325 · #00A2B0
+     */
+    --viz-1: oklch(0.62 0.17 152);
+    --viz-2: oklch(0.58 0.16 262);
+    --viz-3: oklch(0.665 0.155 85);
+    --viz-4: oklch(0.56 0.21 27);
+    --viz-5: oklch(0.645 0.12 205);
+
+    --viz-good: oklch(0.62 0.17 152);
+    --viz-warn: oklch(0.665 0.155 85);
+    --viz-serious: oklch(0.62 0.17 45);
+    --viz-critical: oklch(0.56 0.21 27);
+    --viz-neutral: oklch(0.6 0.025 255);
+
+    --viz-grid: oklch(1 0 0 / 12%);
+}
+
+/*
+ * A dark band inside a light page.
+ *
+ * The guide's green and red are chosen against white and fall to about 2:1
+ * on Deep Water Blue, which is under the line for text of any size. This
+ * lifts both to around 5:1 the way .dark does, so an existing
+ * `text-brand-green`, a Badge or a Button inside a dark band picks up a
+ * legible value without the call site knowing which ground it stands on.
+ * Gold needs no lift: it reaches 7.2:1 on the navy as printed.
+ */
+.on-dark {
+    --background: var(--brand-deeper);
+    --foreground: oklch(0.99 0.003 240);
+    --card: oklch(1 0 0 / 7%);
+    --card-foreground: oklch(0.99 0.003 240);
+    --popover: oklch(0.25 0.085 254);
+    --popover-foreground: oklch(0.99 0.003 240);
+    --primary: oklch(0.74 0.17 152);
+    --primary-foreground: oklch(0.2 0.07 254);
+    --secondary: oklch(1 0 0 / 12%);
+    --secondary-foreground: oklch(0.99 0.003 240);
+    --muted: oklch(1 0 0 / 9%);
+    --muted-foreground: oklch(0.8 0.018 250);
+    --accent: oklch(1 0 0 / 14%);
+    --accent-foreground: oklch(0.99 0.003 240);
+    --border: oklch(1 0 0 / 18%);
+    --input: oklch(1 0 0 / 18%);
+    --ring: oklch(0.74 0.17 152);
+
+    --brand-green: oklch(0.74 0.17 152);
+    --brand-red: oklch(0.75 0.19 30);
+    --brand-charcoal: oklch(0.99 0.003 240);
+    --brand-surface: oklch(1 0 0 / 9%);
+
+    color: var(--foreground);
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+@layer components {
+    /*
+     * The flag ribbon that runs under section headers, echoing the wave mark
+     * in the Zimbabwe Swimming logo.
+     */
+    .flag-rule {
+        /*
+         * Fixed stops rather than the brand tokens. A dark band lifts green
+         * and red so text on it stays legible, and the lifted red reads pink
+         * in a six-pixel rule. Only the fourth band follows the ground, which
+         * is right: the logo's black knocks out to white on dark.
+         */
+        background-image: linear-gradient(
+            to right,
+            oklch(0.56 0.15 152) 0 25%,
+            oklch(0.856 0.175 88) 25% 50%,
+            oklch(0.6 0.235 29.5) 50% 75%,
+            var(--foreground) 75% 100%
+        );
+    }
+}
+
+/*
+ * The lane.
+ *
+ * Swimming is a sport of measurement, and the eight-lane pool is the geometry
+ * every result is recorded against: lane four, heat two, 31.05. The page
+ * headers are built from that geometry rather than from a decorative gradient,
+ * so the site looks like the thing it keeps records of.
+ */
+@layer components {
+    /*
+     * Lane ropes over deep water: a repeating band with a bright float line,
+     * scaled so eight lanes fill the header at any width.
+     */
+    .lane-field {
+        background-color: var(--brand-deeper);
+        background-image:
+            repeating-linear-gradient(
+                to bottom,
+                transparent 0 calc(12.5% - 2px),
+                color-mix(in oklab, var(--brand-water) 55%, transparent)
+                    calc(12.5% - 2px) 12.5%
+            ),
+            radial-gradient(
+                120% 140% at 15% 0%,
+                color-mix(in oklab, var(--brand-water) 30%, transparent) 0%,
+                transparent 60%
+            ),
+            linear-gradient(
+                to bottom,
+                var(--brand-deep) 0%,
+                var(--brand-deeper) 100%
+            );
+    }
+
+    /*
+     * The float markers strung along a lane rope. Drawn as dots rather than an
+     * image so the header never waits on the network.
+     */
+    .lane-floats {
+        background-image: radial-gradient(
+            circle at center,
+            color-mix(in oklab, var(--brand-gold) 70%, transparent) 0 35%,
+            transparent 36%
+        );
+        background-size: 1.25rem 1.25rem;
+        background-repeat: repeat-x;
+    }
+
+    /*
+     * Times, places and records are columns of figures that must line up down
+     * the page, which is what tabular numerals are for.
+     */
+    .tabular {
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: 'tnum' 1;
+    }
+}
+
+/*
+ * One moment of motion, on arrival.
+ *
+ * The lanes settle, then the heading rises through them, and after that the
+ * page is still: nothing on a results site should move unless a result moved.
+ * Every value here is also the finished state, so a browser that refuses the
+ * animation shows the same page, just without the settling.
+ */
+@layer utilities {
+    @keyframes lane-settle {
+        from {
+            opacity: 0;
+            transform: scaleY(0.82);
+        }
+        to {
+            opacity: 1;
+            transform: scaleY(1);
+        }
+    }
+
+    @keyframes lane-rise {
+        from {
+            opacity: 0;
+            transform: translateY(0.75rem);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /*
+     * The hero photograph drifts in over twenty seconds and stops. It is slow
+     * enough that nobody watches it happen and only notices that the picture
+     * is not quite dead, which is the whole intent: a results site should
+     * feel alive at the top and completely still over the figures.
+     */
+    @keyframes hero-drift {
+        from {
+            transform: scale(1.08);
+        }
+        to {
+            transform: scale(1);
+        }
+    }
+
+    /*
+     * The flag rule draws itself out from the heading rather than appearing
+     * under it, which is the one flourish the brand mark earns.
+     */
+    @keyframes flag-draw {
+        from {
+            transform: scaleX(0);
+            opacity: 0;
+        }
+        to {
+            transform: scaleX(1);
+            opacity: 1;
+        }
+    }
+
+    .animate-lane-settle {
+        animation: lane-settle 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+        transform-origin: top;
+    }
+
+    .animate-lane-rise {
+        animation: lane-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .animate-hero-drift {
+        animation: hero-drift 20s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .animate-flag-draw {
+        animation: flag-draw 620ms cubic-bezier(0.22, 1, 0.36, 1) 180ms both;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .animate-lane-settle,
+        .animate-lane-rise,
+        .animate-hero-drift,
+        .animate-flag-draw {
+            animation: none;
+        }
+    }
+}

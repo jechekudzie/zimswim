@@ -3,6 +3,8 @@
 use App\Enums\Course;
 use App\Enums\RecordStatus;
 use App\Enums\Stroke;
+use App\Models\Gala;
+use App\Models\Season;
 use App\Models\SwimRecord;
 use App\Support\Roles;
 
@@ -129,4 +131,74 @@ it('shows only ratified records on the public record list', function (): void {
             ->where('pendingCount', 1)
             ->where('records.11/12.0.holder', 'Ratified holder')
             ->count('records.11/12', 1));
+});
+
+it('groups proposals by the meet they were swum at', function (): void {
+    $season = Season::factory()->create();
+
+    $sprint = Gala::factory()->sanctioned()->create([
+        'name' => 'National Sprint Gala',
+        'season_id' => $season->getKey(),
+        'host_organization_id' => $this->province->getKey(),
+    ]);
+
+    $champs = Gala::factory()->sanctioned()->create([
+        'name' => 'Provincial Championships',
+        'season_id' => $season->getKey(),
+        'host_organization_id' => $this->province->getKey(),
+    ]);
+
+    SwimRecord::factory()->count(3)->pending()->create(['gala_id' => $sprint->getKey()]);
+    SwimRecord::factory()->pending()->create(['gala_id' => $champs->getKey()]);
+
+    // A time entered from the archive belongs to no meet, and must still be
+    // reachable rather than dropped from the queue.
+    SwimRecord::factory()->pending()->create(['gala_id' => null]);
+
+    $this->actingAs(userWithRole(Roles::BOARD_MEMBER, $this->national))
+        ->get(route('admin.records.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->count('pending', 3)
+            ->count('standing', 0)
+            ->where('total', 5)
+            ->etc());
+});
+
+it('groups the standing list by course, gender and age group instead', function (): void {
+    SwimRecord::factory()->count(2)->create([
+        'status' => RecordStatus::Ratified,
+        'course' => Course::LongCourse,
+        'gender' => 'female',
+        'age_group' => '11/12',
+    ]);
+
+    SwimRecord::factory()->create([
+        'status' => RecordStatus::Ratified,
+        'course' => Course::LongCourse,
+        'gender' => 'male',
+        'age_group' => '11/12',
+    ]);
+
+    $this->actingAs(userWithRole(Roles::BOARD_MEMBER, $this->national))
+        ->get(route('admin.records.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->count('standing', 2)
+            ->count('pending', 0)
+            // Girls before boys, which is the order a records table prints.
+            ->where('standing.0.gender', 'female')
+            ->count('standing.0.records', 2)
+            ->where('standing.1.gender', 'male')
+            ->etc());
+});
+
+it('keeps a filtered view narrowed in both groupings', function (): void {
+    SwimRecord::factory()->pending()->create(['course' => Course::LongCourse]);
+    SwimRecord::factory()->pending()->create(['course' => Course::ShortCourse]);
+
+    $this->actingAs(userWithRole(Roles::BOARD_MEMBER, $this->national))
+        ->get(route('admin.records.index', ['course' => Course::ShortCourse->value]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('total', 1)->etc());
 });

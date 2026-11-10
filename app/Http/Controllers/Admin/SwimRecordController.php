@@ -14,6 +14,7 @@ use App\Support\NoticeRecipients;
 use App\Support\Permissions;
 use App\Support\SwimTime;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -27,30 +28,20 @@ class SwimRecordController extends Controller
     {
         $this->authorize('viewAny', SwimRecord::class);
 
-        $records = $this->filtered($request)
-            ->paginate(25)
-            ->withQueryString()
-            ->through(fn (SwimRecord $record): array => [
-                'id' => $record->getKey(),
-                'scope' => $record->scope,
-                'course' => $record->course->value,
-                'gender' => $record->gender,
-                'age_group' => $record->age_group,
-                'event' => $record->eventTitle(),
-                'time' => $record->formattedTime(),
-                'holder' => $record->holder_name,
-                'club' => $record->club?->name,
-                'venue' => $record->venue_name,
-                'set_on' => $record->set_on?->toDateString(),
-                'status' => $record->status->value,
-                'status_label' => $record->status->label(),
-            ]);
+        $records = $this->filtered($request)->get();
 
         return Inertia::render('admin/records/index', [
-            'records' => $records,
+            // Two different questions, so two different shapes. A proposal
+            // waiting on the board arrived with every other time from the
+            // same gala and is ratified alongside them; a standing record
+            // belongs to an event, and the gala it was set at is a footnote.
+            'pending' => $this->byGala($records->where('status', RecordStatus::Pending)),
+            'standing' => $this->byEvent($records->where('status', '!==', RecordStatus::Pending)),
+            'total' => $records->count(),
             'filters' => [
                 'status' => $request->string('status')->toString() ?: null,
                 'course' => $request->string('course')->toString() ?: null,
+                'gender' => $request->string('gender')->toString() ?: null,
             ],
             'statuses' => RecordStatus::options(),
             'courses' => Course::options(),
@@ -96,12 +87,115 @@ class SwimRecordController extends Controller
     /**
      * @return Builder<SwimRecord>
      */
+    /**
+     * Proposals the board has still to decide, in the batches they arrived
+     * in.
+     *
+     * A gala produces a handful of record swims in one afternoon and the
+     * board works through them together, so the gala is the useful heading
+     * here. A record proposed outside a gala — an older time being entered
+     * from the archive — gets its own group rather than being hidden.
+     *
+     * @param  Collection<int, SwimRecord>  $records
+     * @return array<int, array<string, mixed>>
+     */
+    private function byGala(Collection $records): array
+    {
+        return $records
+            ->sortByDesc(fn (SwimRecord $record): string => $record->set_on?->toDateString() ?? '')
+            ->groupBy(fn (SwimRecord $record): string => (string) ($record->gala_id ?? 'none'))
+            ->map(fn (Collection $group): array => [
+                'key' => (string) ($group->first()->gala_id ?? 'none'),
+                'gala' => $group->first()->gala?->name,
+                'held_on' => $group->first()->gala?->starts_on?->toDateString()
+                    ?? $group->first()->set_on?->toDateString(),
+                'venue' => $group->first()->venue_name,
+                'records' => $group
+                    ->sortBy([['distance', 'asc'], ['stroke', 'asc']])
+                    ->map($this->summarise(...))
+                    ->values()
+                    ->all(),
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * The standing list, in the shape a records table is actually printed:
+     * course, then gender, then age group, with the events in order inside.
+     *
+     * @param  Collection<int, SwimRecord>  $records
+     * @return array<int, array<string, mixed>>
+     */
+    private function byEvent(Collection $records): array
+    {
+        $genderOrder = ['female' => 0, 'male' => 1, 'mixed' => 2];
+
+        return $records
+            ->groupBy(fn (SwimRecord $record): string => implode('|', [
+                $record->course->value,
+                $record->gender,
+                $record->age_group,
+            ]))
+            ->sortBy(function (Collection $group): string {
+                $first = $group->first();
+
+                return sprintf(
+                    '%s-%d-%s',
+                    $first->course->value,
+                    ['female' => 0, 'male' => 1, 'mixed' => 2][$first->gender] ?? 9,
+                    $first->age_group,
+                );
+            })
+            ->map(fn (Collection $group, string $key): array => [
+                'key' => $key,
+                'course' => $group->first()->course->label(),
+                'gender' => $group->first()->gender,
+                'age_group' => $group->first()->age_group,
+                'records' => $group
+                    ->sortBy([['distance', 'asc'], ['stroke', 'asc']])
+                    ->map($this->summarise(...))
+                    ->values()
+                    ->all(),
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function summarise(SwimRecord $record): array
+    {
+        return [
+            'id' => $record->getKey(),
+            'scope' => $record->scope,
+            'course' => $record->course->value,
+            'course_label' => $record->course->label(),
+            'gender' => $record->gender,
+            'age_group' => $record->age_group,
+            'event' => $record->eventTitle(),
+            'time' => $record->formattedTime(),
+            'holder' => $record->holder_name,
+            'club' => $record->club?->name,
+            'venue' => $record->venue_name,
+            'gala' => $record->gala?->name,
+            'set_on' => $record->set_on?->toDateString(),
+            'status' => $record->status->value,
+            'status_label' => $record->status->label(),
+        ];
+    }
+
+    /**
+     * @return Builder<SwimRecord>
+     */
     private function filtered(Request $request): Builder
     {
         return SwimRecord::query()
             ->when($request->string('status')->toString(), fn ($query, $status) => $query->where('status', $status))
             ->when($request->string('course')->toString(), fn ($query, $course) => $query->where('course', $course))
-            ->with(['province:id,name', 'club:id,name'])
+            ->when($request->string('gender')->toString(), fn ($query, $gender) => $query->where('gender', $gender))
+            ->with(['province:id,name', 'club:id,name', 'gala:id,name,slug,starts_on'])
             ->orderByDesc('status')
             ->orderBy('age_group')
             ->orderBy('distance');

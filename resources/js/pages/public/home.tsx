@@ -182,27 +182,26 @@ export default function Home({
              */}
             <section className="on-dark relative isolate flex min-h-[62vh] items-end overflow-hidden bg-brand-deeper sm:min-h-[70vh] lg:min-h-svh">
                 {/*
-                 * The banner is three to one. A phone asks it to fill a tall
-                 * portrait box, which crops it down to the swimming cap, so
-                 * below tablet width the band carries a photograph shaped
-                 * closer to the space it has to fill.
+                 * One photograph at every width, so the page opens on the
+                 * same picture whatever you are holding. The banner is three
+                 * to one and a phone asks it to fill a tall box, so the crop
+                 * is pulled back towards the swimmer rather than left in the
+                 * centre, where a portrait window finds only water.
                  */}
-                <picture className="animate-hero-drift absolute inset-0 -z-20 block size-full">
-                    <source
-                        media="(min-width: 768px)"
-                        srcSet={photos.heroBanner.srcSet}
-                        sizes="100vw"
-                    />
-                    <img
-                        src={photos.freestyle.src}
-                        srcSet={photos.freestyle.srcSet}
-                        sizes="100vw"
-                        alt={photos.heroBanner.alt}
-                        fetchPriority="high"
-                        decoding="async"
-                        className="size-full object-cover object-[60%_50%] md:object-[72%_45%]"
-                    />
-                </picture>
+                <img
+                    src={photos.heroBanner.src}
+                    srcSet={photos.heroBanner.srcSet}
+                    // A phone sees about a seventh of a three-to-one
+                    // photograph, so the browser is magnifying whatever it
+                    // picks. `100vw` would have it choose the 1100px file
+                    // and upscale it; the larger one is 80KB more and the
+                    // difference is the whole first impression.
+                    sizes="(max-width: 767px) 2200px, 100vw"
+                    alt={photos.heroBanner.alt}
+                    fetchPriority="high"
+                    decoding="async"
+                    className="animate-hero-drift absolute inset-0 -z-20 size-full object-cover object-[76%_42%] md:object-[72%_45%]"
+                />
                 {/*
                  * The banner is already deep water on the left, which is where
                  * the heading sits, so the washes here are light: enough to

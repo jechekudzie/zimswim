@@ -59,6 +59,26 @@ class RegistrationRenewalDue extends Notification implements ShouldQueue
         return $message->action('Register them', route('admin.members.index'));
     }
 
+    /**
+     * @return array<string, string|null>
+     */
+    public function toArray(object $notifiable): array
+    {
+        $count = count($this->swimmers);
+
+        return [
+            'kind' => 'registration',
+            'title' => sprintf(
+                '%d %s not yet registered for %s',
+                $count,
+                $count === 1 ? 'swimmer' : 'swimmers',
+                $this->season->name,
+            ),
+            'message' => $this->clubName.'. An unregistered swimmer cannot be entered into a sanctioned gala.',
+            'url' => route('admin.members.index'),
+        ];
+    }
+
     public function toSms(object $notifiable): SmsMessage
     {
         return SmsMessage::make(sprintf(

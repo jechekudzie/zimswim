@@ -1,4 +1,9 @@
 import type { Auth } from '@/types/auth';
+import type {
+    Federation,
+    NotificationFeed,
+    OrganizationSummary,
+} from '@/types/platform';
 
 declare module 'react' {
     interface InputHTMLAttributes<T> {
@@ -11,6 +16,9 @@ declare module '@inertiajs/core' {
         sharedPageProps: {
             name: string;
             auth: Auth;
+            federation: Federation;
+            organization: OrganizationSummary | null;
+            notifications: NotificationFeed | null;
             sidebarOpen: boolean;
             [key: string]: unknown;
         };

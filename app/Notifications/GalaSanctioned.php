@@ -39,4 +39,17 @@ class GalaSanctioned extends Notification implements ShouldQueue
 
         return $message->action('Open the gala', route('admin.galas.show', $this->gala));
     }
+
+    /**
+     * @return array<string, string|null>
+     */
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'kind' => 'gala',
+            'title' => $this->gala->name.' has been sanctioned',
+            'message' => 'It is on the public calendar. Open entries once your programme is final.',
+            'url' => route('admin.galas.show', $this->gala),
+        ];
+    }
 }

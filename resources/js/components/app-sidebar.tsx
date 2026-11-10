@@ -12,9 +12,12 @@ import {
     Waves,
 } from 'lucide-react';
 
+import { Link } from '@inertiajs/react';
+
+import { BrandLogo } from '@/components/brand-logo';
 import { NavFooter } from '@/components/nav-footer';
+import AppLogoIcon from '@/components/app-logo-icon';
 import { NavMain } from '@/components/nav-main';
-import { NavUser } from '@/components/nav-user';
 import { OrganizationSwitcher } from '@/components/organization-switcher';
 import {
     Sidebar,
@@ -105,8 +108,25 @@ export function AppSidebar() {
 
     return (
         <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
-                <OrganizationSwitcher />
+            <SidebarHeader className="gap-0 p-0">
+                {/*
+                 * The logo is a dark wordmark, and the sidebar is deep water,
+                 * so it is given its own white band rather than a knockout
+                 * copy: the mark keeps its flag colours, and the band reads
+                 * as the masthead the rest of the column hangs from.
+                 */}
+                <Link
+                    href={dashboard()}
+                    className="flex h-16 items-center justify-center border-b border-sidebar-border bg-white px-4 group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:px-2"
+                >
+                    <BrandLogo className="h-9 group-data-[collapsible=icon]:hidden" />
+                    <AppLogoIcon className="hidden size-7 group-data-[collapsible=icon]:block" />
+                    <span className="sr-only">Zimbabwe Swimming</span>
+                </Link>
+
+                <div className="p-2">
+                    <OrganizationSwitcher />
+                </div>
             </SidebarHeader>
 
             <SidebarContent>
@@ -115,7 +135,6 @@ export function AppSidebar() {
 
             <SidebarFooter>
                 <NavFooter items={footerItems} className="mt-auto" />
-                <NavUser />
             </SidebarFooter>
         </Sidebar>
     );

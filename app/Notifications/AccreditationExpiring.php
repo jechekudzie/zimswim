@@ -47,6 +47,24 @@ class AccreditationExpiring extends Notification implements ShouldQueue
             ->action('View your record', route('admin.officials.show', $this->accreditation->technical_official_id));
     }
 
+    /**
+     * @return array<string, string|null>
+     */
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'kind' => 'accreditation',
+            'title' => sprintf(
+                'Your %s accreditation lapses in %d %s',
+                $this->accreditation->category->label(),
+                $this->daysLeft,
+                $this->daysLeft === 1 ? 'day' : 'days',
+            ),
+            'message' => 'Work a session this season to keep it current. Once it lapses you cannot be appointed.',
+            'url' => route('admin.officials.show', $this->accreditation->technical_official_id),
+        ];
+    }
+
     public function toSms(object $notifiable): SmsMessage
     {
         return SmsMessage::make(sprintf(

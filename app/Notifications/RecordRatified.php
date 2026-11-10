@@ -36,6 +36,19 @@ class RecordRatified extends Notification implements ShouldQueue
             ->line('Congratulations to the swimmer, the coach and the club.');
     }
 
+    /**
+     * @return array<string, string|null>
+     */
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'kind' => 'record',
+            'title' => 'National record ratified',
+            'message' => $this->describe().' is now the standing record.',
+            'url' => route('records'),
+        ];
+    }
+
     public function toSms(object $notifiable): SmsMessage
     {
         return SmsMessage::make('ZIMSWIM: record ratified — '.$this->describe());

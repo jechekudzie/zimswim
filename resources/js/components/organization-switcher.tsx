@@ -1,7 +1,6 @@
 import { router } from '@inertiajs/react';
 import { Check, ChevronsUpDown } from 'lucide-react';
 
-import AppLogoIcon from '@/components/app-logo-icon';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -60,7 +59,6 @@ export function OrganizationSwitcher() {
             <SidebarMenuItem>
                 {onlyOne ? (
                     <SidebarMenuButton size="lg" className="cursor-default">
-                        <AppLogoIcon className="size-8 shrink-0" />
                         <span className="truncate text-left text-sm font-semibold">
                             {organization.name}
                         </span>
@@ -69,7 +67,6 @@ export function OrganizationSwitcher() {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <SidebarMenuButton size="lg">
-                                <AppLogoIcon className="size-8 shrink-0" />
                                 <span className="min-w-0 flex-1 truncate text-left text-sm font-semibold">
                                     {organization.name}
                                 </span>

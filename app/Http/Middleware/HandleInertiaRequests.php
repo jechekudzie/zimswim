@@ -4,8 +4,10 @@ namespace App\Http\Middleware;
 
 use App\Enums\OrganizationType;
 use App\Models\Organization;
+use App\Models\User;
 use App\Support\OrganizationContext;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -59,7 +61,42 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
             ],
+            'notifications' => $user === null ? null : $this->notifications($user),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+        ];
+    }
+
+    /**
+     * What the bell in the backend header shows.
+     *
+     * The unread tally is read on every request, which is why the
+     * notifications table carries an index for exactly that question. The
+     * list is capped: a bell is a prompt to go and deal with something, not
+     * an archive, and a person with four hundred unread notices does not
+     * want them all parsed into every page load.
+     *
+     * @return array{unread: int, items: array<int, array<string, mixed>>}
+     */
+    private function notifications(User $user): array
+    {
+        $items = $user->notifications()
+            ->latest()
+            ->limit(8)
+            ->get()
+            ->map(fn (DatabaseNotification $notification): array => [
+                'id' => $notification->getKey(),
+                'kind' => $notification->data['kind'] ?? 'notice',
+                'title' => $notification->data['title'] ?? 'Notification',
+                'message' => $notification->data['message'] ?? null,
+                'url' => $notification->data['url'] ?? null,
+                'read' => $notification->read_at !== null,
+                'sent_at' => $notification->created_at?->diffForHumans(),
+            ])
+            ->all();
+
+        return [
+            'unread' => $user->unreadNotifications()->count(),
+            'items' => $items,
         ];
     }
 

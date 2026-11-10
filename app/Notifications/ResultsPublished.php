@@ -36,4 +36,17 @@ class ResultsPublished extends Notification implements ShouldQueue
             ->action('View the results', route('results.show', $this->gala))
             ->line('A protest against a disqualification must reach the referee within 30 minutes of the result being announced.');
     }
+
+    /**
+     * @return array<string, string|null>
+     */
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'kind' => 'results',
+            'title' => sprintf('Results up: event %d, %s', $this->eventNumber, $this->eventTitle),
+            'message' => $this->gala->name.'. A protest must reach the referee within 30 minutes.',
+            'url' => route('results.show', $this->gala),
+        ];
+    }
 }

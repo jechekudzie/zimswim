@@ -54,6 +54,24 @@ class EntryDeadlineApproaching extends Notification implements ShouldQueue
             ->line('Entries received after the deadline attract the late entry fee, and a swimmer entered but absent attracts the no-show fine.');
     }
 
+    /**
+     * @return array<string, string|null>
+     */
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'kind' => 'entries',
+            'title' => sprintf(
+                'Entries for %s close in %d %s',
+                $this->gala->name,
+                $this->daysLeft,
+                $this->daysLeft === 1 ? 'day' : 'days',
+            ),
+            'message' => 'A late entry attracts the late fee, and a swimmer entered but absent attracts the no-show fine.',
+            'url' => route('admin.galas.entries.index', $this->gala),
+        ];
+    }
+
     public function toSms(object $notifiable): SmsMessage
     {
         return SmsMessage::make(sprintf(

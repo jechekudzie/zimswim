@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\SwimRecordController;
 use App\Http\Controllers\Admin\TechnicalOfficialController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VenueController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Public\CalendarController;
 use App\Http\Controllers\Public\DirectoryController;
 use App\Http\Controllers\Public\HomeController;
@@ -56,6 +57,14 @@ Route::get('news/{post}', [NewsController::class, 'show'])->name('news.show');
  */
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+
+    /*
+     * The bell in the header. Opening a notice marks it read and takes the
+     * person to the thing it is about, so the tally always reflects what is
+     * genuinely still waiting.
+     */
+    Route::post('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.readAll');
+    Route::post('notifications/{notification}', [NotificationController::class, 'read'])->name('notifications.read');
 
     Route::prefix('academy')->name('academy.')->group(function (): void {
         Route::get('/', [AcademyController::class, 'index'])->name('index');

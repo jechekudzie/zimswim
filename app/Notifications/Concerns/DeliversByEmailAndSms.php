@@ -7,9 +7,11 @@ use App\Notifications\Channels\SmsChannel;
 /**
  * Shared delivery rules for the notices the platform sends.
  *
- * Email always goes. SMS goes too for the notices that carry a deadline,
- * because a missed deadline costs a swimmer their swim, and a text is the one
- * thing most families read the same day.
+ * Email always goes. The database copy always goes too: it is what the bell
+ * in the backend reads, so a notice is still there for somebody who deleted
+ * the email or never saw it. SMS goes as well for the notices that carry a
+ * deadline, because a missed deadline costs a swimmer their swim, and a text
+ * is the one thing most families read the same day.
  */
 trait DeliversByEmailAndSms
 {
@@ -18,7 +20,7 @@ trait DeliversByEmailAndSms
      */
     public function via(object $notifiable): array
     {
-        $channels = ['mail'];
+        $channels = ['mail', 'database'];
 
         if ($this->isUrgent() && config('sms.enabled')) {
             $channels[] = SmsChannel::class;

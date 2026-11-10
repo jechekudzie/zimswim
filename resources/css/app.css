@@ -131,14 +131,19 @@
     --chart-4: oklch(0.353 0.103 254);
     --chart-5: oklch(0.573 0.233 29.5);
     --radius: 0.625rem;
-    --sidebar: oklch(0.98 0.012 243);
-    --sidebar-foreground: oklch(0.21 0.02 255);
-    --sidebar-primary: oklch(0.508 0.133 152);
-    --sidebar-primary-foreground: oklch(1 0 0);
-    --sidebar-accent: oklch(0.94 0.028 241);
-    --sidebar-accent-foreground: oklch(0.3 0.06 250);
-    --sidebar-border: oklch(0.905 0.014 247);
-    --sidebar-ring: oklch(0.508 0.133 152);
+    /* The backend wears the brand rather than a grey chrome: deep water on
+       the sidebar and the ground around the content, with the working area
+       left white so a table of times stays the brightest thing on screen.
+       Green lifts to its on-dark step here, because the printed brand green
+       reaches only about 2:1 on this navy. */
+    --sidebar: oklch(0.353 0.103 254);
+    --sidebar-foreground: oklch(0.97 0.008 240);
+    --sidebar-primary: oklch(0.74 0.17 152);
+    --sidebar-primary-foreground: oklch(0.2 0.07 254);
+    --sidebar-accent: oklch(0.44 0.1 253);
+    --sidebar-accent-foreground: oklch(0.99 0.004 240);
+    --sidebar-border: oklch(0.46 0.085 253);
+    --sidebar-ring: oklch(0.74 0.17 152);
 
     --brand-green: oklch(0.508 0.133 152);
     --brand-gold: oklch(0.856 0.175 88);

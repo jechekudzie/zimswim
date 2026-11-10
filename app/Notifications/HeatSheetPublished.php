@@ -43,6 +43,23 @@ class HeatSheetPublished extends Notification implements ShouldQueue
             ->line('Check your swimmers before the team leaders\' meeting. Corrections after seeding are at the referee\'s discretion.');
     }
 
+    /**
+     * @return array<string, string|null>
+     */
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'kind' => 'heats',
+            'title' => 'Heat sheet published for '.$this->gala->name,
+            'message' => sprintf(
+                '%d %s seeded. Check your swimmers before the team leaders\' meeting.',
+                $this->events,
+                $this->events === 1 ? 'event' : 'events',
+            ),
+            'url' => route('admin.galas.heat-sheet', $this->gala),
+        ];
+    }
+
     public function toSms(object $notifiable): SmsMessage
     {
         return SmsMessage::make(sprintf(

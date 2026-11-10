@@ -101,15 +101,17 @@ it('sends the entry deadline notice by email and text', function (): void {
     );
 });
 
-it('keeps a deadline notice to email when SMS is switched off', function (): void {
+it('keeps a deadline notice off SMS when text messages are switched off', function (): void {
     config()->set('sms.enabled', false);
 
     $this->artisan(SendEntryDeadlineReminders::class)->assertSuccessful();
 
+    // The database copy always goes, because it is what the bell reads; only
+    // the text message is switched off here.
     Notification::assertSentTo(
         $this->clubAdmin,
         EntryDeadlineApproaching::class,
-        fn (EntryDeadlineApproaching $notification, array $channels): bool => $channels === ['mail'],
+        fn (EntryDeadlineApproaching $notification, array $channels): bool => $channels === ['mail', 'database'],
     );
 });
 

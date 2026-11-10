@@ -52,3 +52,33 @@ export type Federation = {
     phone: string | null;
     whatsapp: string | null;
 };
+
+/**
+ * One notice in the header bell. `kind` picks the icon, and is the only part
+ * of the payload the interface interprets — the wording is written by the
+ * notification class that sent it, so the bell and the email always agree.
+ */
+export type NotificationKind =
+    | 'accreditation'
+    | 'entries'
+    | 'gala'
+    | 'heats'
+    | 'notice'
+    | 'record'
+    | 'registration'
+    | 'results';
+
+export type AppNotification = {
+    id: string;
+    kind: NotificationKind;
+    title: string;
+    message: string | null;
+    url: string | null;
+    read: boolean;
+    sent_at: string | null;
+};
+
+export type NotificationFeed = {
+    unread: number;
+    items: AppNotification[];
+};

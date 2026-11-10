@@ -180,7 +180,7 @@ export default function Home({
              * the most characteristic second in the sport: eight swimmers in
              * the air, nothing decided yet.
              */}
-            <section className="on-dark relative isolate flex min-h-[62vh] items-end overflow-hidden bg-brand-deeper sm:min-h-[70vh] lg:min-h-[78vh]">
+            <section className="on-dark relative isolate flex min-h-[62vh] items-end overflow-hidden bg-brand-deeper sm:min-h-[70vh] lg:min-h-svh">
                 {/*
                  * The banner is three to one. A phone asks it to fill a tall
                  * portrait box, which crops it down to the swimming cap, so

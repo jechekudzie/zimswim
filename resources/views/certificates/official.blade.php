@@ -35,18 +35,21 @@
     }
 
     /*
-     * Barely off the panel it sits on. A watermark is texture: the moment
-     * it is legible it is competing with the holder's name, which is the
-     * one thing on the page that has to be read from across a room.
+     * Set on the diagonal so a long wordmark fits inside the frame instead
+     * of running out past the gold rule, and barely off the tone of the
+     * panel it sits on: a watermark is texture, and the moment it is
+     * legible it competes with the holder's name.
      */
     .watermark {
         position: absolute;
-        top: 196mm; left: 0; right: 0;
+        top: 136mm; left: 18mm;
+        width: 174mm;
         text-align: center;
-        font-size: 34pt;
+        font-size: 28pt;
         font-weight: bold;
-        letter-spacing: 6pt;
-        color: #F8F4E8;
+        letter-spacing: 3pt;
+        color: #FAF5E7;
+        transform: rotate(-30deg);
     }
 
     .sheet { position: absolute; top: 22mm; left: 26mm; right: 26mm; text-align: center; }

@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Enums\OfficialGrade;
+use App\Enums\OrganizationType;
 use App\Models\Certificate;
+use App\Models\Organization;
 use App\Support\QrCode;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as PdfWrapper;
@@ -21,17 +23,24 @@ class CertificateDocument
 {
     public function render(Certificate $certificate): PdfWrapper
     {
+        $official = $certificate->technicalOfficial;
+        $national = $this->national();
+
         return Pdf::loadView('certificates.official', [
             'certificate' => $certificate,
             'grade' => $this->grade($certificate),
+            'registrationNumber' => $official?->registration_number,
+            'club' => $official?->club?->name,
             'logo' => $this->logo(),
+            'contactEmail' => $national?->email,
+            'contactPhone' => $national?->phone,
             // The code points at the public verification page, which is the
             // only thing that can say whether the certificate still stands:
             // the paper cannot know it was revoked yesterday.
-            'qr' => QrCode::imageTag(route('certificates.verify', $certificate), '22mm'),
-            'signatory' => 'Zimbabwe Swimming',
+            'qr' => QrCode::imageTag(route('certificates.verify', $certificate), '24mm'),
+            'signatory' => $national->name ?? 'Zimbabwe Swimming',
             'signatoryRole' => 'Chairperson, Technical Committee',
-        ])->setPaper('a4', 'landscape');
+        ])->setPaper('a4', 'portrait');
     }
 
     /**
@@ -41,6 +50,18 @@ class CertificateDocument
     {
         return Str::slug($certificate->holder_name.' '.$certificate->title)
             .'-'.$certificate->verification_code.'.pdf';
+    }
+
+    /**
+     * The national body, for the contact line and the signature block. Read
+     * from its own record rather than from config, so the federation can
+     * change an address on the organisations screen without a deployment.
+     */
+    private function national(): ?Organization
+    {
+        return Organization::query()
+            ->where('type', OrganizationType::National)
+            ->first(['id', 'name', 'email', 'phone']);
     }
 
     private function grade(Certificate $certificate): ?string

@@ -11,6 +11,7 @@ use App\Models\Organization;
 use App\Models\Season;
 use App\Support\Csv;
 use App\Support\OrganizationContext;
+use App\Support\OrganizationOptions;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +21,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MemberController extends Controller
 {
-    public function __construct(private readonly OrganizationContext $context) {}
+    public function __construct(
+        private readonly OrganizationContext $context,
+        private readonly OrganizationOptions $options,
+    ) {}
 
     public function index(Request $request): Response
     {
@@ -50,7 +54,10 @@ class MemberController extends Controller
             'filters' => [
                 'search' => $request->string('search')->toString() ?: null,
                 'status' => $request->string('status')->toString() ?: null,
+                'province' => $request->string('province')->toString() ?: null,
+                'club' => $request->string('club')->toString() ?: null,
             ],
+            ...$this->options->all(),
             'statuses' => MemberStatus::options(),
             'season' => $season === null ? null : [
                 'name' => $season->name,
@@ -112,6 +119,14 @@ class MemberController extends Controller
             ->when(
                 $request->string('status')->toString(),
                 fn ($query, $status) => $query->where('status', $status),
+            )
+            ->when(
+                $request->string('province')->toString(),
+                fn ($query, $province) => $query->where('province_organization_id', $province),
+            )
+            ->when(
+                $request->string('club')->toString(),
+                fn ($query, $club) => $query->where('organization_id', $club),
             )
             ->with(['club:id,name', 'sportingProvince:id,name'])
             ->orderBy('last_name')

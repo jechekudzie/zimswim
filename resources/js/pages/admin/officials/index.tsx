@@ -3,6 +3,11 @@ import { ClipboardCheck, Plus } from 'lucide-react';
 import { useState } from 'react';
 
 import { EmptyState } from '@/components/admin/empty-state';
+import {
+    ScopeFilters,
+    type ClubOption,
+    type ProvinceOption,
+} from '@/components/admin/scope-filters';
 import { ExportButton } from '@/components/admin/export-button';
 import { PageHeader } from '@/components/admin/page-header';
 import { Pagination } from '@/components/admin/pagination';
@@ -36,10 +41,19 @@ export default function OfficialsIndex({
     officials,
     filters,
     categories,
+    provinces,
+    clubs,
 }: {
     officials: Paginated<OfficialRow>;
-    filters: { search: string | null; category: string | null };
+    filters: {
+        search: string | null;
+        category: string | null;
+        province: string | null;
+        club: string | null;
+    };
     categories: { value: string; label: string; minimum_age: number }[];
+    provinces: ProvinceOption[];
+    clubs: ClubOption[];
 }) {
     useFlashMessages();
     const { can } = usePermissions();
@@ -48,7 +62,13 @@ export default function OfficialsIndex({
     function apply(next: Record<string, string | null>) {
         router.get(
             admin.officials.index().url,
-            { search, category: filters.category, ...next },
+            {
+                search,
+                category: filters.category,
+                province: filters.province,
+                club: filters.club,
+                ...next,
+            },
             { preserveState: true, preserveScroll: true, replace: true },
         );
     }
@@ -73,6 +93,8 @@ export default function OfficialsIndex({
                                 params={{
                                     search: filters.search,
                                     category: filters.category,
+                                    province: filters.province,
+                                    club: filters.club,
                                 }}
                             />
                             {can('officials.manage') && (
@@ -101,6 +123,14 @@ export default function OfficialsIndex({
                             placeholder="Search name or registration number"
                         />
                     </form>
+
+                    <ScopeFilters
+                        provinces={provinces}
+                        clubs={clubs}
+                        province={filters.province}
+                        club={filters.club}
+                        onChange={(next) => apply(next)}
+                    />
 
                     <div className="flex flex-wrap gap-1.5">
                         <Button

@@ -1,5 +1,5 @@
 import { Form, Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Award, Pencil } from 'lucide-react';
+import { ArrowLeft, Award, Download, Pencil } from 'lucide-react';
 
 import { SelectField, TextField } from '@/components/admin/form-field';
 import { PageHeader } from '@/components/admin/page-header';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useFlashMessages } from '@/hooks/use-flash-messages';
 import AppLayout from '@/layouts/app-layout';
 import admin from '@/routes/admin';
+import certificateRoutes from '@/routes/certificates';
 import type { Option } from '@/types';
 
 type Accreditation = {
@@ -34,6 +35,7 @@ type Accreditation = {
 export default function OfficialShow({
     official,
     accreditations,
+    certificates,
     sessions,
     availableCategories,
     grades,
@@ -50,6 +52,15 @@ export default function OfficialShow({
         status: string;
     };
     accreditations: Accreditation[];
+    certificates: {
+        code: string;
+        title: string;
+        grade: string | null;
+        issued_on: string;
+        expires_on: string | null;
+        valid: boolean;
+        expired: boolean;
+    }[];
     sessions: {
         role: string;
         gala: string | null;
@@ -299,6 +310,92 @@ export default function OfficialShow({
                                         </div>
                                     ))}
                                 </div>
+                            )}
+                        </section>
+
+                        {/*
+                         * The certificates themselves, not just the register
+                         * row. A convenor checking somebody on a pool deck
+                         * needs to open the paper, which is also the only
+                         * thing carrying the QR code a stranger can scan.
+                         */}
+                        <section className="rounded-xl border border-border bg-card p-6">
+                            <h2 className="font-semibold">Certificates</h2>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                Issued once the exam is passed and every
+                                poolside session is signed off.
+                            </p>
+
+                            {certificates.length === 0 ? (
+                                <p className="mt-5 text-sm text-muted-foreground">
+                                    None issued yet.
+                                </p>
+                            ) : (
+                                <ul className="mt-5 space-y-3">
+                                    {certificates.map((certificate) => (
+                                        <li
+                                            key={certificate.code}
+                                            className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3 last:border-0"
+                                        >
+                                            <div className="min-w-0">
+                                                <p className="flex flex-wrap items-center gap-2 font-medium">
+                                                    {certificate.title}
+                                                    {!certificate.valid && (
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="border-brand-red/40 text-brand-red"
+                                                        >
+                                                            {certificate.expired
+                                                                ? 'Expired'
+                                                                : 'Not valid'}
+                                                        </Badge>
+                                                    )}
+                                                </p>
+                                                <p className="mt-0.5 font-mono text-xs text-muted-foreground">
+                                                    {certificate.code} · issued{' '}
+                                                    {certificate.issued_on}
+                                                    {certificate.expires_on &&
+                                                        ` · valid until ${certificate.expires_on}`}
+                                                </p>
+                                            </div>
+
+                                            <div className="flex shrink-0 gap-2">
+                                                {/*
+                                                 * Plain anchors: one returns
+                                                 * a PDF the browser must be
+                                                 * allowed to handle, the
+                                                 * other is the public page
+                                                 * the QR code points at.
+                                                 */}
+                                                <Button
+                                                    asChild
+                                                    size="sm"
+                                                    variant="outline"
+                                                >
+                                                    <a
+                                                        href={`/verify/${certificate.code}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        View
+                                                    </a>
+                                                </Button>
+                                                <Button asChild size="sm">
+                                                    <a
+                                                        href={
+                                                            certificateRoutes.download(
+                                                                certificate.code,
+                                                            ).url
+                                                        }
+                                                    >
+                                                        <Download className="size-4" />
+                                                        PDF
+                                                    </a>
+                                                </Button>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
                             )}
                         </section>
 

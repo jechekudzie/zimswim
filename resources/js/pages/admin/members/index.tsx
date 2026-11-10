@@ -3,6 +3,11 @@ import { Plus, ShieldAlert, Waves } from 'lucide-react';
 import { useState } from 'react';
 
 import { EmptyState } from '@/components/admin/empty-state';
+import {
+    ScopeFilters,
+    type ClubOption,
+    type ProvinceOption,
+} from '@/components/admin/scope-filters';
 import { ExportButton } from '@/components/admin/export-button';
 import { PageHeader } from '@/components/admin/page-header';
 import { Pagination } from '@/components/admin/pagination';
@@ -41,11 +46,20 @@ export default function MembersIndex({
     members,
     filters,
     statuses,
+    provinces,
+    clubs,
     season,
 }: {
     members: Paginated<MemberRow>;
-    filters: { search: string | null; status: string | null };
+    filters: {
+        search: string | null;
+        status: string | null;
+        province: string | null;
+        club: string | null;
+    };
     statuses: Option[];
+    provinces: ProvinceOption[];
+    clubs: ClubOption[];
     season: SeasonSummary | null;
 }) {
     useFlashMessages();
@@ -55,7 +69,13 @@ export default function MembersIndex({
     function apply(next: Record<string, string | null>) {
         router.get(
             admin.members.index().url,
-            { search, status: filters.status, ...next },
+            {
+                search,
+                status: filters.status,
+                province: filters.province,
+                club: filters.club,
+                ...next,
+            },
             { preserveState: true, preserveScroll: true, replace: true },
         );
     }
@@ -84,6 +104,8 @@ export default function MembersIndex({
                                 params={{
                                     search: filters.search,
                                     status: filters.status,
+                                    province: filters.province,
+                                    club: filters.club,
                                 }}
                             />
                             {can('members.manage') && (
@@ -112,6 +134,14 @@ export default function MembersIndex({
                             placeholder="Search name or ZimSwim number"
                         />
                     </form>
+
+                    <ScopeFilters
+                        provinces={provinces}
+                        clubs={clubs}
+                        province={filters.province}
+                        club={filters.club}
+                        onChange={(next) => apply(next)}
+                    />
 
                     <div className="flex flex-wrap gap-1.5">
                         <Button

@@ -7,11 +7,13 @@ use App\Enums\OfficialCategory;
 use App\Enums\OfficialGrade;
 use App\Enums\OrganizationType;
 use App\Http\Controllers\Controller;
+use App\Models\Certificate;
 use App\Models\OfficialAccreditation;
 use App\Models\Organization;
 use App\Models\TechnicalOfficial;
 use App\Support\Csv;
 use App\Support\OrganizationContext;
+use App\Support\OrganizationOptions;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,7 +24,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TechnicalOfficialController extends Controller
 {
-    public function __construct(private readonly OrganizationContext $context) {}
+    public function __construct(
+        private readonly OrganizationContext $context,
+        private readonly OrganizationOptions $options,
+    ) {}
 
     public function index(Request $request): Response
     {
@@ -52,7 +57,10 @@ class TechnicalOfficialController extends Controller
             'filters' => [
                 'search' => $request->string('search')->toString() ?: null,
                 'category' => $request->string('category')->toString() ?: null,
+                'province' => $request->string('province')->toString() ?: null,
+                'club' => $request->string('club')->toString() ?: null,
             ],
+            ...$this->options->all(),
             'categories' => OfficialCategory::options(),
         ]);
     }
@@ -61,7 +69,7 @@ class TechnicalOfficialController extends Controller
     {
         $this->authorize('view', $official);
 
-        $official->load(['club', 'province', 'accreditations', 'sessions.gala']);
+        $official->load(['club', 'province', 'accreditations', 'sessions.gala', 'certificates.course']);
 
         return Inertia::render('admin/officials/show', [
             'official' => [
@@ -100,6 +108,23 @@ class TechnicalOfficialController extends Controller
                 'as_learner' => $session->as_learner,
                 'signed_off' => $session->isSignedOff(),
             ]),
+            /*
+             * What they have actually been awarded, as opposed to what the
+             * register says they hold. A convenor standing at a pool deck
+             * needs to be able to pull the paper up, not just read a row.
+             */
+            'certificates' => $official->certificates
+                ->sortByDesc('issued_on')
+                ->map(fn (Certificate $certificate): array => [
+                    'code' => $certificate->verification_code,
+                    'title' => $certificate->title,
+                    'grade' => $certificate->grade,
+                    'issued_on' => $certificate->issued_on->toDateString(),
+                    'expires_on' => $certificate->expires_on?->toDateString(),
+                    'valid' => $certificate->isValid(),
+                    'expired' => $certificate->hasExpired(),
+                ])
+                ->values(),
             'availableCategories' => array_map(
                 fn (OfficialCategory $category): array => [
                     'value' => $category->value,
@@ -174,6 +199,14 @@ class TechnicalOfficialController extends Controller
                     ->where('category', $category)
                     ->where('status', AccreditationStatus::Active));
             })
+            ->when(
+                $request->string('province')->toString(),
+                fn ($query, $province) => $query->where('province_organization_id', $province),
+            )
+            ->when(
+                $request->string('club')->toString(),
+                fn ($query, $club) => $query->where('organization_id', $club),
+            )
             ->with(['club:id,name', 'province:id,name', 'accreditations'])
             ->orderBy('last_name');
     }

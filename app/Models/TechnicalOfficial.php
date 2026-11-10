@@ -74,6 +74,12 @@ class TechnicalOfficial extends Model
         return $this->hasMany(OfficialAccreditation::class);
     }
 
+    /** @return HasMany<Certificate, $this> */
+    public function certificates(): HasMany
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
     /** @return HasMany<OfficialSession, $this> */
     public function sessions(): HasMany
     {

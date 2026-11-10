@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\TechnicalOfficialController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VenueController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Portal\OfficialPortalController;
 use App\Http\Controllers\Public\CalendarController;
 use App\Http\Controllers\Public\DirectoryController;
 use App\Http\Controllers\Public\HomeController;
@@ -49,6 +50,14 @@ Route::get('results', [ResultsController::class, 'index'])->name('results.index'
 Route::get('results/{gala}', [ResultsController::class, 'show'])->name('results.show');
 Route::get('results/{gala}/live', [ResultsController::class, 'live'])->name('results.live');
 Route::get('verify/{certificate}', [CertificateController::class, 'verify'])->name('certificates.verify');
+
+/*
+ * The printable certificate. Behind auth because it carries a person's name
+ * and their standing; the verify page above is the open one.
+ */
+Route::get('certificates/{certificate}/download', [CertificateController::class, 'download'])
+    ->middleware('auth')
+    ->name('certificates.download');
 Route::get('officials', OfficialsPathwayController::class)->name('officials');
 
 /*
@@ -69,6 +78,14 @@ Route::get('news/{post}', [NewsController::class, 'show'])->name('news.show');
  */
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+
+    /*
+     * Where a technical official works from. Separate from the board
+     * dashboard because the questions are different: not how many swimmers
+     * are registered, but how far through the course they are and what the
+     * referee still has to sign.
+     */
+    Route::get('portal', OfficialPortalController::class)->name('portal');
 
     /*
      * The bell in the header. Opening a notice marks it read and takes the

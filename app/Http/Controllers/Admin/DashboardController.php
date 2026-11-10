@@ -16,6 +16,7 @@ use App\Models\SwimRecord;
 use App\Models\TechnicalOfficial;
 use App\Support\OrganizationContext;
 use App\Support\Permissions;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -29,9 +30,21 @@ class DashboardController extends Controller
 {
     public function __construct(private readonly OrganizationContext $context) {}
 
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request): RedirectResponse|Response
     {
         $user = $request->user();
+
+        /*
+         * A technical official with no administrative reach has no use for a
+         * board dashboard counting other people's swimmers. Signing in takes
+         * them to their own work instead — the course, the exam, the
+         * sessions still to be signed.
+         */
+        if (! $user->can(Permissions::VIEW_MEMBERS)
+            && TechnicalOfficial::where('user_id', $user->getKey())->exists()) {
+            return to_route('portal');
+        }
+
         $scopeIds = $this->context->scopeIds();
         $season = Season::current();
         $organization = $this->context->current();

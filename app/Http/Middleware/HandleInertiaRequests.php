@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Enums\OrganizationType;
 use App\Models\Organization;
+use App\Models\TechnicalOfficial;
 use App\Models\User;
 use App\Support\OrganizationContext;
 use Illuminate\Http\Request;
@@ -51,6 +52,13 @@ class HandleInertiaRequests extends Middleware
                 'user' => $user,
                 'permissions' => $user === null ? [] : $this->context->permissionsFor($user),
                 'roles' => $user === null ? [] : $this->context->rolesFor($user),
+                /*
+                 * Whether this person is on the officials register, which is
+                 * not a permission: an official's portal is theirs because
+                 * of who they are, not because of what they may do.
+                 */
+                'is_official' => $user !== null
+                    && TechnicalOfficial::where('user_id', $user->getKey())->exists(),
             ],
             'organization' => $this->currentOrganization(),
             'federation' => $this->federation(),

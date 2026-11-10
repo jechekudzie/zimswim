@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\CourseEnrolment;
+use App\Services\CertificateDocument;
 use App\Services\CertificateIssuer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class CertificateController extends Controller
 {
@@ -35,6 +38,26 @@ class CertificateController extends Controller
                 'expired' => $certificate->hasExpired(),
             ],
         ]);
+    }
+
+    /**
+     * The printable certificate.
+     *
+     * Open to the holder and to anybody who may manage officials — a
+     * convenor reprinting one for somebody whose laptop died is the ordinary
+     * case, not an exception. Everybody else uses the public verification
+     * page, which answers the only question an outsider should be asking.
+     */
+    public function download(Request $request, Certificate $certificate, CertificateDocument $document): HttpResponse
+    {
+        abort_unless(
+            $certificate->user_id === $request->user()->getKey()
+                || Gate::allows('certify', Course::class),
+            403,
+        );
+
+        return $document->render($certificate)
+            ->download($document->filename($certificate));
     }
 
     /**

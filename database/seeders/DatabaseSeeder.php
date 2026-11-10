@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             DemoAccountSeeder::class,
             SampleRegistrySeeder::class,
             DemoGalaDaySeeder::class,
+            OfficialJourneySeeder::class,
         ]);
     }
 }

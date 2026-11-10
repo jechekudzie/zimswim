@@ -14,7 +14,7 @@ import {
     Waves,
 } from 'lucide-react';
 
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 import { BrandWordmark } from '@/components/brand-wordmark';
 import { NavFooter } from '@/components/nav-footer';
@@ -28,7 +28,7 @@ import {
     SidebarHeader,
 } from '@/components/ui/sidebar';
 import { usePermissions } from '@/hooks/use-permissions';
-import { home } from '@/routes';
+import { home, portal } from '@/routes';
 import { dashboard } from '@/routes';
 import academy from '@/routes/academy';
 import admin from '@/routes/admin';
@@ -38,6 +38,7 @@ type GuardedItem = NavItem & { permission?: string };
 
 export function AppSidebar() {
     const { can } = usePermissions();
+    const isOfficial = usePage().props.auth.is_official === true;
 
     const groups: { label?: string; items: GuardedItem[] }[] = [
         {
@@ -100,6 +101,15 @@ export function AppSidebar() {
         {
             label: 'Academy',
             items: [
+                ...(isOfficial
+                    ? [
+                          {
+                              title: 'My officiating',
+                              href: portal(),
+                              icon: ClipboardCheck,
+                          },
+                      ]
+                    : []),
                 {
                     title: 'My courses',
                     href: academy.index(),

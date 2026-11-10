@@ -12,6 +12,8 @@ export type User = {
 
 export type Auth = {
     user: User;
+    /** Whether this person is on the officials register. */
+    is_official?: boolean;
 };
 
 export type Passkey = {

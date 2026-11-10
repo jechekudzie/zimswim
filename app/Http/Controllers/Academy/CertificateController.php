@@ -43,12 +43,17 @@ class CertificateController extends Controller
     /**
      * The printable certificate.
      *
+     * It opens in the browser's own PDF viewer rather than dropping into
+     * Downloads: somebody checking an official on a pool deck wants to look
+     * at it, not collect it, and the viewer already carries save and print.
+     * `?download=1` forces the save for anybody who did want the file.
+     *
      * Open to the holder and to anybody who may manage officials — a
      * convenor reprinting one for somebody whose laptop died is the ordinary
      * case, not an exception. Everybody else uses the public verification
      * page, which answers the only question an outsider should be asking.
      */
-    public function download(Request $request, Certificate $certificate, CertificateDocument $document): HttpResponse
+    public function pdf(Request $request, Certificate $certificate, CertificateDocument $document): HttpResponse
     {
         abort_unless(
             $certificate->user_id === $request->user()->getKey()
@@ -56,8 +61,12 @@ class CertificateController extends Controller
             403,
         );
 
-        return $document->render($certificate)
-            ->download($document->filename($certificate));
+        $pdf = $document->render($certificate);
+        $filename = $document->filename($certificate);
+
+        return $request->boolean('download')
+            ? $pdf->download($filename)
+            : $pdf->stream($filename);
     }
 
     /**

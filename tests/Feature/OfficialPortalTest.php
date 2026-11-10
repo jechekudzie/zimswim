@@ -102,7 +102,7 @@ it('shows every exam attempt, the ones that failed included', function (): void 
             ->etc());
 });
 
-it('gives the holder their certificate as a PDF', function (): void {
+it('opens the certificate in the browser rather than dropping it into Downloads', function (): void {
     [$user] = officialUser($this->club);
 
     $certificate = Certificate::factory()->create([
@@ -112,11 +112,30 @@ it('gives the holder their certificate as a PDF', function (): void {
     ]);
 
     $response = $this->actingAs($user)
-        ->get(route('certificates.download', $certificate))
+        ->get(route('certificates.pdf', $certificate))
         ->assertOk()
         ->assertHeader('content-type', 'application/pdf');
 
-    expect($response->getContent())->toStartWith('%PDF-');
+    expect($response->getContent())->toStartWith('%PDF-')
+        ->and($response->headers->get('content-disposition'))->toStartWith('inline');
+});
+
+it('saves the file instead when that is what was asked for', function (): void {
+    [$user] = officialUser($this->club);
+
+    $certificate = Certificate::factory()->create([
+        'user_id' => $user->getKey(),
+        'holder_name' => 'Nomsa Sibanda',
+        'title' => 'Timekeeper',
+    ]);
+
+    $response = $this->actingAs($user)
+        ->get(route('certificates.pdf', ['certificate' => $certificate, 'download' => 1]))
+        ->assertOk();
+
+    expect($response->headers->get('content-disposition'))
+        ->toStartWith('attachment')
+        ->toContain('nomsa-sibanda-timekeeper');
 });
 
 it('will not hand somebody else a certificate that is not theirs', function (): void {
@@ -126,7 +145,7 @@ it('will not hand somebody else a certificate that is not theirs', function (): 
     $certificate = Certificate::factory()->create(['user_id' => $holder->getKey()]);
 
     $this->actingAs($stranger)
-        ->get(route('certificates.download', $certificate))
+        ->get(route('certificates.pdf', $certificate))
         ->assertForbidden();
 });
 
@@ -137,7 +156,7 @@ it('lets the technical committee reprint one for somebody', function (): void {
     $certificate = Certificate::factory()->create(['user_id' => $holder->getKey()]);
 
     $this->actingAs($convenor)
-        ->get(route('certificates.download', $certificate))
+        ->get(route('certificates.pdf', $certificate))
         ->assertOk();
 });
 
@@ -146,7 +165,7 @@ it('keeps the printable certificate behind a login', function (): void {
         'user_id' => User::factory()->create()->getKey(),
     ]);
 
-    $this->get(route('certificates.download', $certificate))
+    $this->get(route('certificates.pdf', $certificate))
         ->assertRedirect(route('login'));
 });
 

@@ -1,5 +1,5 @@
 import { Form, Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Award, Download, Pencil } from 'lucide-react';
+import { ArrowLeft, Award, FileText, Pencil } from 'lucide-react';
 
 import { SelectField, TextField } from '@/components/admin/form-field';
 import { PageHeader } from '@/components/admin/page-header';
@@ -383,13 +383,15 @@ export default function OfficialShow({
                                                 <Button asChild size="sm">
                                                     <a
                                                         href={
-                                                            certificateRoutes.download(
+                                                            certificateRoutes.pdf(
                                                                 certificate.code,
                                                             ).url
                                                         }
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
                                                     >
-                                                        <Download className="size-4" />
-                                                        PDF
+                                                        <FileText className="size-4" />
+                                                        Open PDF
                                                     </a>
                                                 </Button>
                                             </div>

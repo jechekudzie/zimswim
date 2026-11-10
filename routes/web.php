@@ -52,12 +52,13 @@ Route::get('results/{gala}/live', [ResultsController::class, 'live'])->name('res
 Route::get('verify/{certificate}', [CertificateController::class, 'verify'])->name('certificates.verify');
 
 /*
- * The printable certificate. Behind auth because it carries a person's name
- * and their standing; the verify page above is the open one.
+ * The certificate itself, opened in the browser's PDF viewer. Behind auth
+ * because it carries a person's name and their standing; the verify page
+ * above is the open one.
  */
-Route::get('certificates/{certificate}/download', [CertificateController::class, 'download'])
+Route::get('certificates/{certificate}/pdf', [CertificateController::class, 'pdf'])
     ->middleware('auth')
-    ->name('certificates.download');
+    ->name('certificates.pdf');
 Route::get('officials', OfficialsPathwayController::class)->name('officials');
 
 /*

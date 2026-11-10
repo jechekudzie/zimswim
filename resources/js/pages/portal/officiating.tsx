@@ -5,6 +5,7 @@ import {
     CheckCircle2,
     ClipboardCheck,
     Download,
+    FileText,
     GraduationCap,
     XCircle,
 } from 'lucide-react';
@@ -405,20 +406,31 @@ export default function OfficiatingPortal({
                                         {/*
                                          * A plain anchor, not an Inertia
                                          * link: the response is a PDF, and
-                                         * the browser has to be allowed to
-                                         * download it.
+                                         * it opens in the browser's own
+                                         * viewer, which already carries
+                                         * save and print.
                                          */}
                                         <a
                                             href={
-                                                certificates.download(
+                                                certificates.pdf(
                                                     certificate.code,
                                                 ).url
                                             }
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                         >
-                                            <Download className="size-4" />
-                                            Get certificate
+                                            <FileText className="size-4" />
+                                            View certificate
                                         </a>
                                     </Button>
+
+                                    <a
+                                        href={`${certificates.pdf(certificate.code).url}?download=1`}
+                                        className="mt-2 inline-flex items-center justify-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                                    >
+                                        <Download className="size-3.5" />
+                                        Save a copy
+                                    </a>
                                 </article>
                             ))}
                         </div>

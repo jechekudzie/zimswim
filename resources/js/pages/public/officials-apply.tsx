@@ -93,15 +93,19 @@ export default function OfficialsApply({
     categories,
     provinces,
     courses,
+    preselected,
 }: {
     categories: Category[];
     provinces: Province[];
     courses: Course[];
+    preselected: string | null;
 }) {
-    const [step, setStep] = useState(0);
+    // Arriving with the choice already made starts at the details instead,
+    // rather than showing somebody a question they have just answered.
+    const [step, setStep] = useState(preselected === null ? 0 : 1);
 
     const form = useForm({
-        category: '',
+        category: preselected ?? '',
         first_name: '',
         last_name: '',
         email: '',

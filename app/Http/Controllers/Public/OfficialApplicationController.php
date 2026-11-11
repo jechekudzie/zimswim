@@ -28,12 +28,22 @@ class OfficialApplicationController extends Controller
 {
     public function __construct(private readonly OfficialOnboarding $onboarding) {}
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
+        $wanted = $request->string('category')->toString();
+
         return Inertia::render('public/officials-apply', [
             'categories' => $this->categories(),
             'provinces' => $this->provinces(),
             'courses' => $this->courses(),
+            // Arriving from a course on the pathway page, the choice is
+            // already made; only a category somebody could actually start
+            // with is honoured, so the link cannot pre-select something the
+            // form would then refuse.
+            'preselected' => in_array($wanted, array_map(
+                fn (OfficialCategory $category): string => $category->value,
+                $this->entryCategories(),
+            ), true) ? $wanted : null,
         ]);
     }
 

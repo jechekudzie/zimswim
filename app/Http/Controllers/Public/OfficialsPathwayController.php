@@ -6,6 +6,7 @@ use App\Enums\OfficialCategory;
 use App\Enums\OfficialGrade;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\CourseLesson;
 use App\Models\TechnicalOfficial;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -62,22 +63,49 @@ class OfficialsPathwayController extends Controller
     {
         return Course::query()
             ->published()
-            ->withCount(['lessons' => fn ($query) => $query->where('is_published', true)])
+            ->with(['lessons' => fn ($query) => $query
+                ->where('is_published', true)
+                ->orderBy('position'),
+            ])
             ->orderBy('position')
             ->orderBy('title')
             ->get()
-            ->map(fn (Course $course): array => [
-                'title' => $course->title,
-                'summary' => $course->summary,
-                'category' => $course->official_category?->value,
-                'category_label' => $course->official_category?->label(),
-                'grade' => $course->awards_grade?->label(),
-                'lessons_count' => $course->lessons_count,
-                'exam_minutes' => $course->exam_minutes,
-                'pass_mark' => $course->pass_mark,
-                'practical_sessions_required' => $course->practical_sessions_required,
-                'exam_ready' => $course->hasEnoughQuestions(),
-            ])
+            ->map(function (Course $course): array {
+                $category = $course->official_category;
+
+                return [
+                    'title' => $course->title,
+                    'summary' => $course->summary,
+                    'description' => $course->description,
+                    'category' => $category?->value,
+                    'category_label' => $category?->label(),
+                    'grade' => $course->awards_grade?->label(),
+                    // The modules by name, which is what turns a list of
+                    // courses into something somebody can judge before they
+                    // commit a season to it.
+                    'lessons' => $course->lessons
+                        ->map(fn (CourseLesson $lesson): array => [
+                            'title' => $lesson->title,
+                            'minutes' => (int) round(($lesson->video_seconds ?? 0) / 60),
+                        ])
+                        ->values()
+                        ->all(),
+                    'study_minutes' => (int) round(
+                        $course->lessons->sum(fn (CourseLesson $lesson): int => $lesson->video_seconds ?? 0) / 60,
+                    ),
+                    'exam_minutes' => $course->exam_minutes,
+                    'pass_mark' => $course->pass_mark,
+                    'max_attempts' => $course->max_attempts,
+                    'practical_sessions_required' => $course->practical_sessions_required,
+                    'minimum_age' => $category?->minimumAge() ?? $course->minimum_age,
+                    'prerequisites' => array_map(
+                        fn (OfficialCategory $prerequisite): string => $prerequisite->label(),
+                        $category?->prerequisites() ?? [],
+                    ),
+                    'is_entry' => ($category?->prerequisites() ?? []) === [],
+                    'exam_ready' => $course->hasEnoughQuestions(),
+                ];
+            })
             ->all();
     }
 }

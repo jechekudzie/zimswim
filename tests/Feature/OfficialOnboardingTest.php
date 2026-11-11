@@ -186,3 +186,48 @@ it('keeps the review queue away from somebody who cannot manage officials', func
         ->get(route('admin.official-applications.index'))
         ->assertForbidden();
 });
+
+it('starts the form on the right step when a course sends somebody to it', function (): void {
+    $this->get(route('officials.apply', ['category' => OfficialCategory::Timekeeper->value]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('preselected', OfficialCategory::Timekeeper->value)
+            ->etc());
+});
+
+it('will not let a link pre-select a category that has to be earned', function (): void {
+    // Otherwise the enrol button on a later course would seat somebody in a
+    // form that the server is bound to refuse.
+    $this->get(route('officials.apply', ['category' => OfficialCategory::Referee->value]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('preselected', null)->etc());
+});
+
+it('ignores a category that does not exist', function (): void {
+    $this->get(route('officials.apply', ['category' => 'water-boy']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('preselected', null)->etc());
+});
+
+it('publishes each course with its modules named, not just counted', function (): void {
+    $course = Course::factory()->create([
+        'official_category' => OfficialCategory::Timekeeper,
+        'is_published' => true,
+    ]);
+
+    $course->lessons()->create([
+        'title' => 'Starting and stopping the watch',
+        'slug' => 'starting-and-stopping-the-watch',
+        'position' => 0,
+        'video_seconds' => 540,
+        'is_published' => true,
+    ]);
+
+    $this->get(route('officials'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('courses.0.lessons.0.title', 'Starting and stopping the watch')
+            ->where('courses.0.lessons.0.minutes', 9)
+            ->where('courses.0.is_entry', true)
+            ->etc());
+});

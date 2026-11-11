@@ -2,7 +2,6 @@ import { Head, Link } from '@inertiajs/react';
 import {
     ArrowRight,
     Award,
-    BookOpen,
     ClipboardList,
     GraduationCap,
     Timer,
@@ -20,14 +19,189 @@ import type { Option } from '@/types';
 type Course = {
     title: string;
     summary: string | null;
+    description: string | null;
+    category: string | null;
     category_label: string | null;
     grade: string | null;
-    lessons_count: number;
+    lessons: { title: string; minutes: number }[];
+    study_minutes: number;
     exam_minutes: number;
     pass_mark: number;
+    max_attempts: number;
     practical_sessions_required: number;
+    minimum_age: number | null;
+    prerequisites: string[];
+    is_entry: boolean;
     exam_ready: boolean;
 };
+
+/**
+ * Hours and minutes, written the way a prospectus writes contact time.
+ */
+function readableTime(minutes: number): string {
+    if (minutes < 60) {
+        return `${minutes} min`;
+    }
+
+    const hours = Math.floor(minutes / 60);
+    const rest = minutes % 60;
+
+    return rest === 0 ? `${hours} hr` : `${hours} hr ${rest} min`;
+}
+
+/**
+ * One course, set out as a syllabus entry.
+ *
+ * The modules are named rather than counted, because the question somebody
+ * has before giving up a season of Saturdays is what they will actually be
+ * taught, and "4 lessons" does not answer it.
+ */
+function Syllabus({ course }: { course: Course }) {
+    const assessment = [
+        {
+            term: 'Taught',
+            detail: `${course.lessons.length} ${course.lessons.length === 1 ? 'module' : 'modules'}, about ${readableTime(course.study_minutes)} of study in your own time`,
+        },
+        {
+            term: 'Examined',
+            detail: course.exam_ready
+                ? `Written paper, ${course.exam_minutes} minutes, ${course.pass_mark}% to pass, ${course.max_attempts} attempts`
+                : 'Written paper — the question bank for this one is still being set',
+        },
+        {
+            term: 'Practised',
+            detail: `${course.practical_sessions_required} sessions poolside beside a qualified official, each signed off`,
+        },
+        {
+            term: 'Awarded',
+            detail: course.grade
+                ? `${course.category_label} at ${course.grade} grade, recognised in every province`
+                : `${course.category_label}, recognised in every province`,
+        },
+    ];
+
+    return (
+        <article className="overflow-hidden rounded-2xl border border-border bg-card">
+            <header className="border-b border-border bg-brand-surface/40 px-6 py-5 sm:px-8">
+                <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-2">
+                    <div className="min-w-0">
+                        <h3 className="text-xl font-bold tracking-tight text-balance">
+                            {course.title}
+                        </h3>
+                        {course.summary && (
+                            <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                                {course.summary}
+                            </p>
+                        )}
+                    </div>
+
+                    <p className="shrink-0 text-sm text-muted-foreground">
+                        {course.is_entry ? (
+                            <span className="font-medium text-brand-green">
+                                Open to beginners
+                            </span>
+                        ) : (
+                            <>Requires {course.prerequisites.join(' and ')}</>
+                        )}
+                        {course.minimum_age !== null && (
+                            <span className="mt-0.5 block">
+                                From age {course.minimum_age}
+                            </span>
+                        )}
+                    </p>
+                </div>
+            </header>
+
+            <div className="grid gap-8 px-6 py-6 sm:px-8 lg:grid-cols-[1.1fr_1fr]">
+                <div>
+                    <h4 className="text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                        Modules
+                    </h4>
+
+                    {course.lessons.length === 0 ? (
+                        <p className="mt-3 text-sm text-muted-foreground">
+                            The syllabus for this course is being written. Its
+                            poolside sessions can be worked in the meantime.
+                        </p>
+                    ) : (
+                        <ol className="mt-3 divide-y divide-border/60">
+                            {course.lessons.map((lesson, index) => (
+                                <li
+                                    key={lesson.title}
+                                    className="flex items-baseline gap-3 py-2.5 text-sm"
+                                >
+                                    <span className="w-5 shrink-0 text-right font-mono text-xs text-muted-foreground tabular-nums">
+                                        {index + 1}
+                                    </span>
+                                    <span className="min-w-0 flex-1">
+                                        {lesson.title}
+                                    </span>
+                                    {lesson.minutes > 0 && (
+                                        <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+                                            {lesson.minutes} min
+                                        </span>
+                                    )}
+                                </li>
+                            ))}
+                        </ol>
+                    )}
+                </div>
+
+                <div>
+                    <h4 className="text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                        How it works
+                    </h4>
+
+                    <dl className="mt-3 divide-y divide-border/60">
+                        {assessment.map((row) => (
+                            <div key={row.term} className="py-2.5">
+                                <dt className="text-sm font-medium">
+                                    {row.term}
+                                </dt>
+                                <dd className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
+                                    {row.detail}
+                                </dd>
+                            </div>
+                        ))}
+                    </dl>
+                </div>
+            </div>
+
+            <footer className="flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-border bg-muted/30 px-6 py-4 sm:px-8">
+                {course.is_entry && course.category ? (
+                    <>
+                        <Button asChild>
+                            <Link
+                                href={`${officialsRoutes.apply().url}?category=${course.category}`}
+                            >
+                                Enrol on this course
+                                <ArrowRight className="size-4" />
+                            </Link>
+                        </Button>
+                        <p className="text-xs text-muted-foreground">
+                            Your place opens the day the technical committee
+                            approves your application.
+                        </p>
+                    </>
+                ) : (
+                    <>
+                        <Button asChild variant="outline">
+                            <Link href={officialsRoutes.apply()}>
+                                Start the pathway
+                            </Link>
+                        </Button>
+                        <p className="text-xs text-muted-foreground">
+                            Earned from{' '}
+                            {course.prerequisites.join(' and ') ||
+                                'an earlier category'}
+                            , so begin there and this one follows.
+                        </p>
+                    </>
+                )}
+            </footer>
+        </article>
+    );
+}
 
 type Category = {
     value: string;
@@ -121,63 +295,19 @@ export default function Officials({
                     <div>
                         <FlagRule />
                         <h2 className="mt-4 text-2xl font-bold tracking-tight">
-                            Courses in the Academy
+                            The prospectus
                         </h2>
                         <p className="mt-2 max-w-3xl text-muted-foreground">
-                            Each course is lessons you work through in your own
-                            time, a written exam, and sessions signed off at the
-                            poolside. Your place on one is opened for you the
-                            day your application is approved.
+                            Every course is taught, examined and practised in
+                            the same way, and the requirements are the same in
+                            all provinces. Study in your own time, sit the paper
+                            when you are ready, then work your sessions at galas
+                            your club is already attending.
                         </p>
 
-                        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="mt-8 flex flex-col gap-6">
                             {courses.map((course) => (
-                                <article
-                                    key={course.title}
-                                    className="flex flex-col rounded-xl border border-border bg-card p-6"
-                                >
-                                    <BookOpen className="size-5 text-primary" />
-                                    <h3 className="mt-4 font-semibold text-balance">
-                                        {course.title}
-                                    </h3>
-                                    {course.summary && (
-                                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                                            {course.summary}
-                                        </p>
-                                    )}
-
-                                    <dl className="mt-5 space-y-1.5 text-xs text-muted-foreground">
-                                        <div className="flex justify-between gap-3">
-                                            <dt>Lessons</dt>
-                                            <dd className="font-medium text-foreground tabular-nums">
-                                                {course.lessons_count}
-                                            </dd>
-                                        </div>
-                                        <div className="flex justify-between gap-3">
-                                            <dt>Exam</dt>
-                                            <dd className="font-medium text-foreground tabular-nums">
-                                                {course.exam_minutes} min ·{' '}
-                                                {course.pass_mark}% to pass
-                                            </dd>
-                                        </div>
-                                        <div className="flex justify-between gap-3">
-                                            <dt>Poolside sessions</dt>
-                                            <dd className="font-medium text-foreground tabular-nums">
-                                                {
-                                                    course.practical_sessions_required
-                                                }
-                                            </dd>
-                                        </div>
-                                    </dl>
-
-                                    {!course.exam_ready && (
-                                        <p className="mt-4 text-xs text-muted-foreground">
-                                            The exam for this one is still being
-                                            set. Lessons and poolside sessions
-                                            can start now.
-                                        </p>
-                                    )}
-                                </article>
+                                <Syllabus key={course.title} course={course} />
                             ))}
                         </div>
                     </div>

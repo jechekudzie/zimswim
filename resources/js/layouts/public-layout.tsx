@@ -36,7 +36,7 @@ const navigation = [
     { title: 'Venues', href: venues() },
     { title: 'Results', href: results.index() },
     { title: 'Records', href: records() },
-    { title: 'Officials', href: officials() },
+    { title: 'Officials Academy', href: officials() },
     { title: 'News', href: news.index() },
 ];
 

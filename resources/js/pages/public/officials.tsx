@@ -90,7 +90,7 @@ export default function Officials({
                 </Button>
             }
         >
-            <Head title="Officials" />
+            <Head title="Officials Academy" />
 
             <Section>
                 <div>

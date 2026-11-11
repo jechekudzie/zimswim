@@ -261,6 +261,16 @@ export default function Home({
                             >
                                 <Link href={clubs()}>Find a club</Link>
                             </Button>
+                            <Button
+                                asChild
+                                size="lg"
+                                variant="outline"
+                                className="border-white/30 bg-white/5 text-white backdrop-blur hover:bg-white/15 hover:text-white"
+                            >
+                                <Link href={officials()}>
+                                    Officials Academy
+                                </Link>
+                            </Button>
                         </div>
                     </div>
 

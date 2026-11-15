@@ -15,6 +15,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int|null $organization_id
  * @property int|null $season_id
+ * @property int|null $gala_id
  * @property int|null $uploaded_by
  * @property string $title
  * @property string $slug
@@ -65,6 +66,23 @@ class Document extends Model
     public function season(): BelongsTo
     {
         return $this->belongsTo(Season::class);
+    }
+
+    /** @return BelongsTo<Gala, $this> */
+    public function gala(): BelongsTo
+    {
+        return $this->belongsTo(Gala::class);
+    }
+
+    /**
+     * The results files published for a gala, oldest first, so a two-day meet
+     * reads in the order it was swum.
+     *
+     * @param  Builder<self>  $query
+     */
+    public function scopeResults(Builder $query): void
+    {
+        $query->where('category', 'results')->orderBy('created_at');
     }
 
     public function humanFileSize(): string

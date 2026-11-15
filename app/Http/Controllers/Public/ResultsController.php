@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Events\EventResultsPublished;
 use App\Http\Controllers\Controller;
+use App\Models\Document;
 use App\Models\Gala;
 use App\Models\GalaEvent;
 use App\Services\ResultsBoard;
@@ -50,6 +51,15 @@ class ResultsController extends Controller
 
         return Inertia::render('public/gala-results', [
             'gala' => $this->board->gala($gala),
+            // The MeetManager export is the official record of what was
+            // swum; the tables below it are this system's reading of it.
+            'resultsFiles' => $gala->resultsFiles()->where('is_public', true)->get()
+                ->map(fn (Document $file): array => [
+                    'title' => $file->title,
+                    'description' => $file->description,
+                    'size' => $file->humanFileSize(),
+                    'url' => route('results.file', [$gala, $file]),
+                ]),
             'events' => $this->board->publishedEvents($gala)
                 ->map(fn (GalaEvent $event): array => $this->board->event($event)),
             'pointsTable' => $this->results->pointsTable($gala->getKey()),

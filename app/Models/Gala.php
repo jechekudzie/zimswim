@@ -128,6 +128,19 @@ class Gala extends Model
         return $this->belongsTo(Venue::class);
     }
 
+    /**
+     * The results files published for this gala.
+     *
+     * Times are recorded in MeetManager rather than typed in here, so the
+     * file it exports is the official record of what was swum.
+     *
+     * @return HasMany<Document, $this>
+     */
+    public function resultsFiles(): HasMany
+    {
+        return $this->hasMany(Document::class)->where('category', 'results')->orderBy('created_at');
+    }
+
     /** @return HasMany<GalaSession, $this> */
     public function sessions(): HasMany
     {

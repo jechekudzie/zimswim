@@ -63,4 +63,16 @@ class GalaPolicy
     {
         return $user->can(Permissions::RECORD_RESULTS);
     }
+
+    /**
+     * Attaching or removing the results file a gala is published from.
+     *
+     * Held to the publishing permission rather than the recording one: the
+     * file is what the public reads, so putting one up is the act of
+     * releasing a result, not of entering it.
+     */
+    public function publishResults(User $user, Gala $gala): bool
+    {
+        return $user->can(Permissions::PUBLISH_RESULTS);
+    }
 }

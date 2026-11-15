@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\GalaEntryController;
 use App\Http\Controllers\Admin\GalaSanctionController;
 use App\Http\Controllers\Admin\MeetFileController;
 use App\Http\Controllers\Admin\MemberController;
+use App\Http\Controllers\Admin\GalaResultsFileController;
 use App\Http\Controllers\Admin\OfficialApplicationController;
 use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\Admin\OrganizationSwitchController;
@@ -33,6 +34,7 @@ use App\Http\Controllers\Public\NewsController;
 use App\Http\Controllers\Public\OfficialApplicationController as PublicOfficialApplicationController;
 use App\Http\Controllers\Public\OfficialsPathwayController;
 use App\Http\Controllers\Public\RecordController;
+use App\Http\Controllers\Public\ResultsFileController;
 use App\Http\Controllers\Public\ResultsController;
 use Illuminate\Support\Facades\Route;
 
@@ -49,6 +51,12 @@ Route::get('records', RecordController::class)->name('records');
 Route::get('results', [ResultsController::class, 'index'])->name('results.index');
 Route::get('results/{gala}', [ResultsController::class, 'show'])->name('results.show');
 Route::get('results/{gala}/live', [ResultsController::class, 'live'])->name('results.live');
+
+/*
+ * The results file itself. Streamed rather than linked at the disk, so an
+ * unpublished gala's results cannot be reached by guessing a filename.
+ */
+Route::get('results/{gala}/file/{document}', ResultsFileController::class)->name('results.file');
 Route::get('verify/{certificate}', [CertificateController::class, 'verify'])->name('certificates.verify');
 
 /*
@@ -132,6 +140,13 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
          * Approving one opens an account, so it sits behind the same
          * permission as creating an official by hand.
          */
+        /*
+         * The MeetManager export a gala is published from. Times are
+         * recorded there on the day rather than typed in here.
+         */
+        Route::post('galas/{gala}/results-files', [GalaResultsFileController::class, 'store'])->name('galas.results-files.store');
+        Route::delete('galas/{gala}/results-files/{document}', [GalaResultsFileController::class, 'destroy'])->name('galas.results-files.destroy');
+
         Route::get('official-applications', [OfficialApplicationController::class, 'index'])->name('official-applications.index');
         Route::post('official-applications/{application}/approve', [OfficialApplicationController::class, 'approve'])->name('official-applications.approve');
         Route::post('official-applications/{application}/decline', [OfficialApplicationController::class, 'decline'])->name('official-applications.decline');

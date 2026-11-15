@@ -7,6 +7,7 @@ use App\Enums\GalaStatus;
 use App\Events\EventResultsPublished;
 use App\Events\ResultsRecorded;
 use App\Http\Controllers\Controller;
+use App\Models\Document;
 use App\Models\Gala;
 use App\Models\GalaEntry;
 use App\Models\GalaEvent;
@@ -37,11 +38,11 @@ class ResultController extends Controller
         private readonly RelayService $relays,
     ) {}
 
-    public function index(Gala $gala): Response
+    public function index(Request $request, Gala $gala): Response
     {
         $this->authorize('view', $gala);
 
-        $gala->load('events.session');
+        $gala->load(['events.session', 'resultsFiles']);
 
         return Inertia::render('admin/galas/results', [
             'gala' => [
@@ -49,6 +50,16 @@ class ResultController extends Controller
                 'name' => $gala->name,
                 'status_label' => $gala->status->label(),
             ],
+            // Times are recorded in MeetManager on the day, so the export it
+            // produces is what the public actually reads.
+            'resultsFiles' => $gala->resultsFiles->map(fn (Document $file): array => [
+                'slug' => $file->slug,
+                'title' => $file->title,
+                'description' => $file->description,
+                'size' => $file->humanFileSize(),
+                'uploaded_on' => $file->created_at?->toDateString(),
+                'url' => route('results.file', [$gala, $file]),
+            ]),
             'events' => $this->liveProp($gala, $gala->events->map(fn (GalaEvent $event): array => [
                 'id' => $event->getKey(),
                 'number' => $event->event_number,
@@ -66,7 +77,10 @@ class ResultController extends Controller
             'pointsTable' => $this->liveProp($gala, request()->user()->can('recordResults', $gala)
                 ? $this->results->pointsTable($gala->getKey())
                 : $this->results->publishedPointsTable($gala->getKey())),
-            'can' => ['record' => request()->user()->can('recordResults', $gala)],
+            'can' => [
+                'record' => $request->user()->can('recordResults', $gala),
+                'publishFiles' => $request->user()->can('publishResults', $gala),
+            ],
         ]);
     }
 

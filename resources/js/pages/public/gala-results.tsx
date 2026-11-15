@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Award, Radio, Star, Trophy } from 'lucide-react';
+import { ArrowLeft, Award, FileText, Radio, Star, Trophy } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,14 @@ export default function GalaResults({
     gala,
     events,
     pointsTable,
+    resultsFiles,
 }: {
+    resultsFiles: {
+        title: string;
+        description: string | null;
+        size: string;
+        url: string;
+    }[];
     gala: {
         name: string;
         slug: string;
@@ -104,6 +111,44 @@ export default function GalaResults({
                     </>
                 }
             />
+
+            {/*
+             * Offered before the tables, because this is the record the meet
+             * was run from. What follows is this site's reading of it, and a
+             * reader checking a time should be able to go to the source.
+             */}
+            {resultsFiles.length > 0 && (
+                <div className="border-b border-border bg-brand-surface/40">
+                    <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-5 sm:px-6 lg:px-8">
+                        <p className="flex items-center gap-2 text-sm font-semibold">
+                            <FileText className="size-4 text-primary" />
+                            Official results
+                        </p>
+
+                        <div className="flex flex-wrap gap-2">
+                            {resultsFiles.map((file) => (
+                                <Button
+                                    key={file.url}
+                                    asChild
+                                    size="sm"
+                                    variant="outline"
+                                >
+                                    <a
+                                        href={file.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {file.title}
+                                        <span className="text-muted-foreground">
+                                            PDF · {file.size}
+                                        </span>
+                                    </a>
+                                </Button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-3 lg:px-8">
                 <div className="space-y-6 lg:col-span-2">

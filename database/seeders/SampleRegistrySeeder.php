@@ -35,7 +35,7 @@ class SampleRegistrySeeder extends Seeder
         // field a relay team, and the relay screens are only worth anything
         // with squads that look like real ones.
         $squads = [
-            'les-brown-swimming-club' => [
+            'spartans-swimming-club' => [
                 ['Tanaka', 'Moyo', '2014-03-11', 'female'],
                 ['Ruvarashe', 'Chikwava', '2012-07-02', 'female'],
                 ['Anesu', 'Marimo', '2013-02-18', 'female'],
@@ -47,7 +47,7 @@ class SampleRegistrySeeder extends Seeder
                 ['Kudakwashe', 'Zhou', '2011-08-16', 'male'],
                 ['Tinashe', 'Chasi', '2012-02-02', 'male'],
             ],
-            'harare-dolphins' => [
+            'vikings-swimming-club' => [
                 ['Chiedza', 'Mutsvangwa', '2009-05-14', 'female'],
                 ['Nokutenda', 'Mapfumo', '2010-01-19', 'female'],
                 ['Ropafadzo', 'Kativhu', '2009-09-30', 'female'],
@@ -57,7 +57,7 @@ class SampleRegistrySeeder extends Seeder
                 ['Nigel', 'Rwodzi', '2008-11-12', 'male'],
                 ['Munyaradzi', 'Chigumba', '2009-06-04', 'male'],
             ],
-            'bulawayo-barracudas' => [
+            'stingrays-swimming-club' => [
                 ['Thandiwe', 'Khumalo', '2011-04-15', 'female'],
                 ['Sibongile', 'Mpofu', '2012-08-23', 'female'],
                 ['Nompilo', 'Ncube', '2011-12-01', 'female'],
@@ -67,20 +67,20 @@ class SampleRegistrySeeder extends Seeder
                 ['Thabo', 'Maphosa', '2011-07-21', 'male'],
                 ['Sipho', 'Masuku', '2012-03-06', 'male'],
             ],
-            'hillside-swimming-club' => [
+            'penguins-swimming-club' => [
                 ['Nyasha', 'Dube', '2015-01-30', 'male'],
                 ['Panashe', 'Tshuma', '2014-09-17', 'female'],
                 ['Kundai', 'Mlilo', '2015-06-23', 'female'],
             ],
-            'mufakose-swimming-club' => [
+            'sharks-swimming-club' => [
                 ['Tadiwanashe', 'Chirume', '2013-08-04', 'male'],
                 ['Vimbai', 'Muchemwa', '2013-11-28', 'female'],
             ],
-            'mutare-swimming-club' => [
+            'border-dolphins' => [
                 ['Tendai', 'Makoni', '2010-10-10', 'male'],
                 ['Rutendo', 'Zimuto', '2011-05-02', 'female'],
             ],
-            'lomagundi-college-swimming' => [
+            'dorados-west' => [
                 ['Natasha', 'Pote', '2009-12-19', 'female'],
                 ['Brandon', 'Viljoen', '2010-04-08', 'male'],
             ],

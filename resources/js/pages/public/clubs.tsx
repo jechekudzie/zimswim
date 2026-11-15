@@ -36,7 +36,7 @@ export default function Clubs({ provinces }: { provinces: Province[] }) {
                 },
             ]}
             title="Clubs and provinces"
-            description="Swimming in Zimbabwe runs through eleven provincial bodies and their affiliated clubs. Find the club nearest you and get in touch."
+            description="Swimming in Zimbabwe runs through the provincial associations and the clubs affiliated to each. Find the club nearest you and get in touch."
         >
             <Head title="Clubs" />
 

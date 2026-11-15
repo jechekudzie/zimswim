@@ -63,6 +63,10 @@ function Syllabus({ course }: { course: Course }) {
             detail: `${course.lessons.length} ${course.lessons.length === 1 ? 'module' : 'modules'}, about ${readableTime(course.study_minutes)} of study in your own time`,
         },
         {
+            term: 'Attended',
+            detail: 'A clinic in this technical area, run by the province — required for every category, and the online modules prepare you for it',
+        },
+        {
             term: 'Examined',
             detail: course.exam_ready
                 ? `Written paper, ${course.exam_minutes} minutes, ${course.pass_mark}% to pass, ${course.max_attempts} attempts`
@@ -325,6 +329,22 @@ export default function Officials({
                         same in all provinces and achievement is recognised
                         nationally. Only one new officiating category or
                         examination may normally be undertaken per season.
+                    </p>
+
+                    {/*
+                     * Stated on its own rather than as a column, because it
+                     * is true of every row and a column of identical ticks
+                     * would say less than one sentence does.
+                     */}
+                    <p className="mt-5 flex max-w-3xl items-start gap-3 rounded-xl border border-brand-gold/40 bg-brand-gold/5 px-5 py-4 text-sm">
+                        <GraduationCap className="mt-0.5 size-4 shrink-0 text-foreground" />
+                        <span>
+                            For every category on this table, an official{' '}
+                            <strong className="font-semibold">must</strong>{' '}
+                            attend a clinic in the relevant technical area to
+                            qualify. The online course prepares you for it; it
+                            does not replace it.
+                        </span>
                     </p>
 
                     <div className="mt-8 overflow-x-auto rounded-xl border border-border">

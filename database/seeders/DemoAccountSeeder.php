@@ -27,9 +27,9 @@ class DemoAccountSeeder extends Seeder
         $national = Organization::where('slug', 'zimbabwe-swimming')->firstOrFail();
         $harare = Organization::where('slug', 'harare')->firstOrFail();
         $bulawayo = Organization::where('slug', 'bulawayo')->firstOrFail();
-        $lesBrown = Organization::where('slug', 'les-brown-swimming-club')->firstOrFail();
-        $dolphins = Organization::where('slug', 'harare-dolphins')->firstOrFail();
-        $barracudas = Organization::where('slug', 'bulawayo-barracudas')->firstOrFail();
+        $lesBrown = Organization::where('slug', 'spartans-swimming-club')->firstOrFail();
+        $dolphins = Organization::where('slug', 'vikings-swimming-club')->firstOrFail();
+        $barracudas = Organization::where('slug', 'stingrays-swimming-club')->firstOrFail();
 
         $accounts = [
             // Leading Digital support, attached to the national body so the role

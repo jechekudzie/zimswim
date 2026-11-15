@@ -38,7 +38,7 @@ class OfficialJourneySeeder extends Seeder
 
     public function run(): void
     {
-        $club = Organization::where('slug', 'les-brown-swimming-club')->first()
+        $club = Organization::where('slug', 'spartans-swimming-club')->first()
             ?? Organization::where('type', 'club')->first();
 
         if ($club === null) {

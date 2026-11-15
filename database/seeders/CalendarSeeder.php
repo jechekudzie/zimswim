@@ -102,7 +102,9 @@ class CalendarSeeder extends Seeder
                 'name' => 'Mashonaland West Championships',
                 'slug' => 'mashonaland-west-championships-2026',
                 'host' => 'mashonaland-west',
-                'venue' => 'lomagundi-college-pool',
+                // Provincial pools are not on the venue register yet, so this
+                // one reads "venue to book" until the province supplies it.
+                'venue' => null,
                 'level' => GalaLevel::Provincial,
                 'starts_on' => '2026-10-24',
                 'ends_on' => '2026-10-24',

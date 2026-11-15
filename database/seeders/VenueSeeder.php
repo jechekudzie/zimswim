@@ -7,14 +7,26 @@ use App\Models\Organization;
 use App\Models\Venue;
 use Illuminate\Database\Seeder;
 
+/**
+ * The pools galas are swum at.
+ *
+ * Only the national pools are loaded. The provincial list runs to schools and
+ * municipal pools that the provinces are still compiling, and a half-entered
+ * venue register is worse than an honest gap: a club secretary who sees three
+ * pools and knows of ten stops trusting the page. The grade is already there
+ * for them, so a provincial pool can be added without a deployment.
+ */
 class VenueSeeder extends Seeder
 {
     public function run(): void
     {
+        /** @var array<int, int> $known */
+        $known = [];
+
         foreach ($this->venues() as $venue) {
             $province = Organization::where('slug', $venue['province'])->first();
 
-            Venue::updateOrCreate(
+            $known[] = Venue::updateOrCreate(
                 ['slug' => $venue['slug']],
                 [
                     'name' => $venue['name'],
@@ -34,7 +46,40 @@ class VenueSeeder extends Seeder
                     'notes' => $venue['notes'] ?? null,
                     'is_active' => $venue['is_active'] ?? true,
                 ],
-            );
+            )->getKey();
+        }
+
+        $this->retire($known);
+    }
+
+    /**
+     * Take out pools that are no longer on the list.
+     *
+     * A venue a gala has already been set at is left alone and reported: the
+     * gala would lose the place it is being swum.
+     *
+     * @param  array<int, int>  $known
+     */
+    private function retire(array $known): void
+    {
+        $stale = Venue::query()
+            ->whereNotIn('id', $known)
+            ->withCount('galas')
+            ->get();
+
+        foreach ($stale as $venue) {
+            if ($venue->galas_count > 0) {
+                $this->command?->warn(sprintf(
+                    'Left %s in place: %d gala(s) are set there.',
+                    $venue->name,
+                    $venue->galas_count,
+                ));
+
+                continue;
+            }
+
+            $venue->delete();
+            $this->command?->info('Retired '.$venue->name.', which is not on the national list.');
         }
     }
 
@@ -59,20 +104,6 @@ class VenueSeeder extends Seeder
                 'notes' => 'Hosts most Harare national and provincial events, including the Junior Nationals and Harare Senior Championships.',
             ],
             [
-                'name' => 'Mufakose Pool',
-                'slug' => 'mufakose-pool',
-                'province' => 'harare',
-                'city' => 'Harare',
-                'owner_type' => 'council',
-                'owner_name' => 'City of Harare',
-                'pool_length' => 50,
-                'lanes' => 10,
-                'starting_blocks' => true,
-                'grade' => VenueGrade::Provincial,
-                'condition_notes' => 'Under refurbishment by Harare Amateur Swimming with the City of Harare.',
-                'notes' => '50m by 25m, 10 lanes and deeper than Les Brown.',
-            ],
-            [
                 'name' => 'Bulawayo City Pool',
                 'slug' => 'bulawayo-city-pool',
                 'province' => 'bulawayo',
@@ -85,18 +116,6 @@ class VenueSeeder extends Seeder
                 'grade' => VenueGrade::National,
                 'condition_notes' => 'Has had maintenance problems; confirm condition before sanctioning.',
                 'notes' => 'Hosts the Zimbabwe Swimming Senior Nationals and regional championships.',
-            ],
-            [
-                'name' => 'Hillside Teachers College Pool',
-                'slug' => 'hillside-teachers-college-pool',
-                'province' => 'bulawayo',
-                'city' => 'Bulawayo',
-                'owner_type' => 'school',
-                'owner_name' => 'Hillside Teachers College',
-                'pool_length' => 25,
-                'lanes' => 6,
-                'grade' => VenueGrade::Provincial,
-                'notes' => 'Used for junior galas.',
             ],
             [
                 'name' => 'Mutare Municipal City Pool',
@@ -112,19 +131,6 @@ class VenueSeeder extends Seeder
                 'grade' => VenueGrade::National,
                 'condition_notes' => 'No electronic timing; the National Sprint Gala runs on manual timing.',
                 'notes' => 'Known as the Main Bath and home of the National Sprint Gala.',
-            ],
-            [
-                'name' => 'Lomagundi College Pool',
-                'slug' => 'lomagundi-college-pool',
-                'province' => 'mashonaland-west',
-                'city' => 'Chinhoyi',
-                'owner_type' => 'school',
-                'owner_name' => 'Lomagundi College',
-                'pool_length' => 25,
-                'lanes' => 6,
-                'starting_blocks' => true,
-                'grade' => VenueGrade::Provincial,
-                'notes' => 'Hosts the Mashonaland West Championships.',
             ],
         ];
     }

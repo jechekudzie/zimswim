@@ -92,9 +92,20 @@ class Result extends Model
     }
 
     /** @return BelongsTo<Organization, $this> */
+    /**
+     * The club the swimmer raced for.
+     *
+     * Retired clubs included: which club somebody swam for is a fact about
+     * the day, and a club leaving the register years later does not unmake
+     * it. Without this a result whose club has since been retired reads as
+     * having no club at all, and the public results page it appears on dies
+     * trying to name one.
+     *
+     * @return BelongsTo<Organization, $this>
+     */
     public function club(): BelongsTo
     {
-        return $this->belongsTo(Organization::class, 'organization_id');
+        return $this->belongsTo(Organization::class, 'organization_id')->withTrashed();
     }
 
     public function formattedTime(): string

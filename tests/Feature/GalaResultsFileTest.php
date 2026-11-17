@@ -2,6 +2,9 @@
 
 use App\Models\Document;
 use App\Models\Gala;
+use App\Models\GalaEvent;
+use App\Models\Member;
+use App\Models\Result;
 use App\Models\Season;
 use App\Support\Roles;
 use Illuminate\Http\UploadedFile;
@@ -151,4 +154,34 @@ it('removes the file from disk when it is taken down', function (): void {
 
     expect(Document::count())->toBe(0);
     Storage::disk('local')->assertMissing('gala-results/x.pdf');
+});
+
+it('still names the club a swim was raced for after that club is retired', function (): void {
+    // Which club somebody swam for is a fact about the day. A club leaving
+    // the register later must not unmake it, and must not take the public
+    // results page down with it.
+    $event = GalaEvent::factory()->create([
+        'gala_id' => $this->gala->getKey(),
+        'results_published_at' => now(),
+    ]);
+
+    $member = Member::factory()->create([
+        'organization_id' => $this->club->getKey(),
+    ]);
+
+    Result::factory()->create([
+        'gala_event_id' => $event->getKey(),
+        'member_id' => $member->getKey(),
+        'organization_id' => $this->club->getKey(),
+        'place' => 1,
+        'points' => 9,
+    ]);
+
+    $this->club->delete();
+
+    $this->get(route('results.show', $this->gala))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('events.0.results.0.club', $this->club->name)
+            ->etc());
 });

@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PageHero } from '@/components/public/page-hero';
 import PublicLayout from '@/layouts/public-layout';
+import { cn } from '@/lib/utils';
 import { photos } from '@/lib/photos';
 import results from '@/routes/results';
 
@@ -86,25 +87,45 @@ export default function GalaResults({
                         </Link>
                     </Button>
                 }
-                figures={[
-                    { label: 'Events published', value: events.length },
-                    {
-                        label: 'Swims recorded',
-                        value: events.reduce(
-                            (total, event) => total + event.results.length,
-                            0,
-                        ),
-                    },
-                    { label: 'Clubs scoring', value: pointsTable.length },
-                ]}
+                /*
+                 * Where a gala was run from MeetManager there is nothing to
+                 * count here, and three zeros beside a published results
+                 * file read as a failure rather than as a different way of
+                 * working. The figures appear only when there is something
+                 * behind them.
+                 */
+                figures={
+                    events.length === 0
+                        ? []
+                        : [
+                              {
+                                  label: 'Events published',
+                                  value: events.length,
+                              },
+                              {
+                                  label: 'Swims recorded',
+                                  value: events.reduce(
+                                      (total, event) =>
+                                          total + event.results.length,
+                                      0,
+                                  ),
+                              },
+                              {
+                                  label: 'Clubs scoring',
+                                  value: pointsTable.length,
+                              },
+                          ]
+                }
                 actions={
                     <>
-                        <Button asChild variant="secondary">
-                            <Link href={results.live(gala.slug)}>
-                                <Radio className="size-4" />
-                                Live board
-                            </Link>
-                        </Button>
+                        {events.length > 0 && (
+                            <Button asChild variant="secondary">
+                                <Link href={results.live(gala.slug)}>
+                                    <Radio className="size-4" />
+                                    Live board
+                                </Link>
+                            </Button>
+                        )}
                         <Badge className="self-center bg-white/15 text-white hover:bg-white/20">
                             {gala.level}
                         </Badge>
@@ -150,12 +171,56 @@ export default function GalaResults({
                 </div>
             )}
 
-            <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-3 lg:px-8">
+            <div
+                className={cn(
+                    'mx-auto grid w-full max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:px-8',
+                    events.length > 0 && 'lg:grid-cols-3',
+                )}
+            >
                 <div className="space-y-6 lg:col-span-2">
                     {events.length === 0 ? (
-                        <p className="rounded-xl border border-dashed border-border p-12 text-center text-muted-foreground">
-                            No events have been published for this gala yet.
-                        </p>
+                        /*
+                         * Two different silences. A gala run from MeetManager
+                         * has its results here, as a file; one that has not
+                         * been published yet has nothing at all. Saying "no
+                         * events published" over a results file people can
+                         * already download is simply wrong.
+                         */
+                        <div className="rounded-xl border border-dashed border-border p-12 text-center">
+                            {resultsFiles.length > 0 ? (
+                                <>
+                                    <FileText className="mx-auto size-7 text-muted-foreground" />
+                                    <p className="mt-4 font-medium">
+                                        Results are published as a file
+                                    </p>
+                                    <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+                                        This gala was timed in MeetManager, so
+                                        every heat, place and time is in the
+                                        official results above rather than in
+                                        the tables here.
+                                    </p>
+                                    <div className="mt-6 flex flex-wrap justify-center gap-2">
+                                        {resultsFiles.map((file) => (
+                                            <Button key={file.url} asChild>
+                                                <a
+                                                    href={file.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    <FileText className="size-4" />
+                                                    {file.title}
+                                                </a>
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </>
+                            ) : (
+                                <p className="text-muted-foreground">
+                                    Results for this gala have not been
+                                    published yet.
+                                </p>
+                            )}
+                        </div>
                     ) : (
                         events.map((event) => (
                             <section
@@ -215,7 +280,13 @@ export default function GalaResults({
                     )}
                 </div>
 
-                <aside>
+                {/*
+                 * Points and the key below them are read out of swims
+                 * recorded here. A gala timed in MeetManager has none, so the
+                 * panel is left off rather than standing empty beside a
+                 * results file that holds every place in the meet.
+                 */}
+                <aside className={events.length === 0 ? 'hidden' : undefined}>
                     <section className="rounded-xl border border-border bg-card p-6">
                         <h2 className="flex items-center gap-2 font-semibold">
                             <Trophy className="size-4 text-primary" />

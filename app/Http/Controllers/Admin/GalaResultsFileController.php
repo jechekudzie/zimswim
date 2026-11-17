@@ -39,7 +39,7 @@ class GalaResultsFileController extends Controller
             'file' => ['required', 'file', 'mimes:pdf', 'max:20480'],
             'description' => ['nullable', 'string', 'max:500'],
         ], [
-            'file.mimes' => 'Results must be a PDF, which is what MeetManager exports.',
+            'file.mimes' => 'Results must be a PDF — the one your meet software prints.',
             'file.max' => 'That file is over 20MB. Export it again without the splash pages if you can.',
         ]);
 

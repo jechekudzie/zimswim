@@ -58,8 +58,8 @@ function ResultsFiles({
                     Official results file
                 </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                    The export from MeetManager. This is what the public
-                    downloads from the gala's results page.
+                    The results your meet software prints. This is what the
+                    public downloads from the gala's results page.
                 </p>
             </header>
 
@@ -138,9 +138,7 @@ function ResultsFiles({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="file">
-                                    PDF from MeetManager
-                                </Label>
+                                <Label htmlFor="file">Results PDF</Label>
                                 <Input
                                     id="file"
                                     name="file"

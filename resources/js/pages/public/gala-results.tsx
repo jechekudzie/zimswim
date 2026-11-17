@@ -88,11 +88,11 @@ export default function GalaResults({
                     </Button>
                 }
                 /*
-                 * Where a gala was run from MeetManager there is nothing to
-                 * count here, and three zeros beside a published results
-                 * file read as a failure rather than as a different way of
-                 * working. The figures appear only when there is something
-                 * behind them.
+                 * Where a gala was timed in the federation's meet software
+                 * there is nothing to count here, and three zeros beside a
+                 * published results file read as a failure rather than as a
+                 * different way of working. The figures appear only when
+                 * there is something behind them.
                  */
                 figures={
                     events.length === 0
@@ -180,11 +180,11 @@ export default function GalaResults({
                 <div className="space-y-6 lg:col-span-2">
                     {events.length === 0 ? (
                         /*
-                         * Two different silences. A gala run from MeetManager
-                         * has its results here, as a file; one that has not
-                         * been published yet has nothing at all. Saying "no
-                         * events published" over a results file people can
-                         * already download is simply wrong.
+                         * Two different silences. A gala timed elsewhere has
+                         * its results here, as a file; one that has not been
+                         * published yet has nothing at all. Saying "no events
+                         * published" over a results file people can already
+                         * download is simply wrong.
                          */
                         <div className="rounded-xl border border-dashed border-border p-12 text-center">
                             {resultsFiles.length > 0 ? (
@@ -194,10 +194,9 @@ export default function GalaResults({
                                         Results are published as a file
                                     </p>
                                     <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-                                        This gala was timed in MeetManager, so
-                                        every heat, place and time is in the
-                                        official results above rather than in
-                                        the tables here.
+                                        Every heat, place and time for this gala
+                                        is in the official results above rather
+                                        than in the tables here.
                                     </p>
                                     <div className="mt-6 flex flex-wrap justify-center gap-2">
                                         {resultsFiles.map((file) => (
@@ -282,7 +281,7 @@ export default function GalaResults({
 
                 {/*
                  * Points and the key below them are read out of swims
-                 * recorded here. A gala timed in MeetManager has none, so the
+                 * recorded here. A gala timed elsewhere has none, so the
                  * panel is left off rather than standing empty beside a
                  * results file that holds every place in the meet.
                  */}

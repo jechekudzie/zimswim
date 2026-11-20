@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\GalaEntryController;
 use App\Http\Controllers\Admin\GalaSanctionController;
 use App\Http\Controllers\Admin\MeetFileController;
 use App\Http\Controllers\Admin\MemberController;
+use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\GalaResultsFileController;
 use App\Http\Controllers\Admin\OfficialApplicationController;
 use App\Http\Controllers\Admin\OrganizationController;
@@ -146,6 +147,16 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
          */
         Route::post('galas/{gala}/results-files', [GalaResultsFileController::class, 'store'])->name('galas.results-files.store');
         Route::delete('galas/{gala}/results-files/{document}', [GalaResultsFileController::class, 'destroy'])->name('galas.results-files.destroy');
+
+        /*
+         * The wording and pictures on the public pages. Kept separate from
+         * news and documents: those are things the federation publishes,
+         * this is what the site itself says.
+         */
+        Route::get('content', [ContentController::class, 'index'])->name('content.index');
+        Route::put('content', [ContentController::class, 'update'])->name('content.update');
+        Route::post('content/image', [ContentController::class, 'image'])->name('content.image');
+        Route::delete('content/image', [ContentController::class, 'resetImage'])->name('content.image.reset');
 
         Route::get('official-applications', [OfficialApplicationController::class, 'index'])->name('official-applications.index');
         Route::post('official-applications/{application}/approve', [OfficialApplicationController::class, 'approve'])->name('official-applications.approve');

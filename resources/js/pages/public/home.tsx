@@ -43,6 +43,12 @@ type Featured = UpcomingGala & {
 };
 
 type HomeProps = {
+    /**
+     * Wording and pictures the federation can change, already resolved
+     * against what the page ships with — so every lookup here is a string,
+     * never a missing key.
+     */
+    content: Record<string, string>;
     season: SeasonSummary | null;
     featured: Featured | null;
     upcomingGalas: UpcomingGala[];
@@ -91,6 +97,7 @@ function dateRange(starts: string, ends: string) {
 }
 
 export default function Home({
+    content,
     season,
     featured,
     upcomingGalas,
@@ -101,6 +108,8 @@ export default function Home({
     sponsors,
     stats,
 }: HomeProps) {
+    const say = (key: string) => content[key] ?? '';
+
     const figures = [
         { label: 'Provinces', value: stats.provinces, icon: MapPin },
         { label: 'Affiliated clubs', value: stats.clubs, icon: Users },
@@ -189,14 +198,28 @@ export default function Home({
                  * centre, where a portrait window finds only water.
                  */}
                 <img
-                    src={photos.heroBanner.src}
-                    srcSet={photos.heroBanner.srcSet}
-                    // A phone sees about a seventh of a three-to-one
-                    // photograph, so the browser is magnifying whatever it
-                    // picks. `100vw` would have it choose the 1100px file
-                    // and upscale it; the larger one is 80KB more and the
-                    // difference is the whole first impression.
-                    sizes="(max-width: 767px) 2200px, 100vw"
+                    src={say('home.hero.image') || photos.heroBanner.src}
+                    /*
+                     * A phone sees about a seventh of a three-to-one
+                     * photograph, so the browser is magnifying whatever it
+                     * picks. `100vw` would have it choose the 1100px file
+                     * and upscale it; the larger one is 80KB more and the
+                     * difference is the whole first impression.
+                     *
+                     * An uploaded photograph has no responsive set behind
+                     * it, so both are dropped rather than left pointing at
+                     * a picture that is no longer on the page.
+                     */
+                    srcSet={
+                        say('home.hero.image')
+                            ? undefined
+                            : photos.heroBanner.srcSet
+                    }
+                    sizes={
+                        say('home.hero.image')
+                            ? undefined
+                            : '(max-width: 767px) 2200px, 100vw'
+                    }
                     alt={photos.heroBanner.alt}
                     fetchPriority="high"
                     decoding="async"
@@ -228,9 +251,9 @@ export default function Home({
                             className="animate-lane-rise mt-7 text-5xl leading-[0.95] font-bold tracking-tight text-balance text-white drop-shadow-sm sm:text-6xl lg:text-7xl"
                             style={{ animationDelay: '70ms' }}
                         >
-                            From the first splash
+                            {say('home.hero.heading')}
                             <span className="block text-brand-gold">
-                                to the Olympic stage
+                                {say('home.hero.heading_accent')}
                             </span>
                         </h1>
 
@@ -238,9 +261,7 @@ export default function Home({
                             className="animate-lane-rise mt-7 max-w-xl text-lg leading-relaxed text-white/80"
                             style={{ animationDelay: '150ms' }}
                         >
-                            One national home for the calendar, clubs, pools,
-                            the officials pathway and every ratified Zimbabwean
-                            record.
+                            {say('home.hero.lede')}
                         </p>
 
                         <div
@@ -249,7 +270,7 @@ export default function Home({
                         >
                             <Button asChild size="lg">
                                 <Link href={calendar()}>
-                                    See the season calendar
+                                    {say('home.hero.primary_action')}
                                     <ArrowRight className="size-4" />
                                 </Link>
                             </Button>
@@ -289,7 +310,7 @@ export default function Home({
                     </dl>
 
                     <p className="mt-10 text-sm font-semibold tracking-[0.2em] text-brand-gold uppercase">
-                        Same Waters · Brighter Futures
+                        {say('home.hero.tagline')}
                     </p>
                 </div>
             </section>
@@ -319,7 +340,7 @@ export default function Home({
                             </div>
 
                             <p className="mt-6 text-xs font-semibold tracking-[0.16em] text-primary uppercase">
-                                Next on the national calendar
+                                {say('home.upcoming.featured_eyebrow')}
                             </p>
                             <h2 className="mt-2 text-3xl font-bold tracking-tight text-balance sm:text-4xl">
                                 {featured.name}
@@ -381,11 +402,10 @@ export default function Home({
                     <div>
                         <FlagRule />
                         <h2 className="mt-4 text-3xl font-bold tracking-tight">
-                            What is coming up
+                            {say('home.upcoming.heading')}
                         </h2>
                         <p className="mt-2 max-w-2xl text-muted-foreground">
-                            Only meets on the official provincial and national
-                            calendars are recognised by Zimbabwe Swimming.
+                            {say('home.upcoming.lede')}
                         </p>
                     </div>
                     <Button asChild variant="ghost">
@@ -398,7 +418,7 @@ export default function Home({
 
                 {upcomingGalas.length === 0 ? (
                     <p className="mt-10 rounded-xl border border-dashed border-border p-10 text-center text-muted-foreground">
-                        No galas are on the calendar yet.
+                        {say('home.upcoming.empty')}
                     </p>
                 ) : (
                     <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -458,17 +478,13 @@ export default function Home({
                     <Reveal>
                         <FlagRule className="h-1.5 w-20" />
                         <h2 className="mt-4 text-3xl font-bold tracking-tight text-balance text-white sm:text-4xl">
-                            Somebody has to time the race
+                            {say('home.officials.heading')}
                         </h2>
                         <p className="mt-5 max-w-xl leading-relaxed text-white/70">
-                            Every gala on this calendar is run by volunteers at
-                            the water's edge — timekeepers, inspectors of turns,
-                            judges of stroke, a starter and a referee. Short a
-                            crew and the swimmers wait behind the blocks.
+                            {say('home.officials.lede')}
                         </p>
                         <p className="mt-4 max-w-xl leading-relaxed text-white/70">
-                            Almost every national referee in the country started
-                            with a stopwatch and one Saturday morning.
+                            {say('home.officials.second')}
                         </p>
 
                         <div className="mt-9 flex flex-wrap gap-3">
@@ -490,9 +506,7 @@ export default function Home({
                         </div>
 
                         <p className="mt-5 max-w-lg text-sm text-white/70">
-                            Officials are accredited through an affiliated club,
-                            so joining one is the first step if you are not
-                            already a member.
+                            {say('home.officials.note')}
                         </p>
                     </Reveal>
 
@@ -524,12 +538,10 @@ export default function Home({
                 <div>
                     <FlagRule />
                     <h2 className="mt-4 text-3xl font-bold tracking-tight">
-                        There is a place for you on the pool deck
+                        {say('home.pathways.heading')}
                     </h2>
                     <p className="mt-2 max-w-2xl text-muted-foreground">
-                        Different roles. Same team. Whether you swim, time,
-                        judge or drive to galas on a Saturday morning, the sport
-                        runs on people.
+                        {say('home.pathways.lede')}
                     </p>
 
                     <div className="mt-10 grid gap-6 md:grid-cols-3">
@@ -585,9 +597,9 @@ export default function Home({
                     <div>
                         <FlagRule />
                         <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                            Every record tells a story.
+                            {say('home.records.heading')}
                             <span className="block text-brand-gold">
-                                What will yours be?
+                                {say('home.records.heading_accent')}
                             </span>
                         </h2>
                         <p className="mt-5 max-w-xl leading-relaxed text-white/70">
@@ -657,11 +669,10 @@ export default function Home({
                         <div>
                             <FlagRule />
                             <h2 className="mt-4 text-3xl font-bold tracking-tight">
-                                Where the nationals are swum
+                                {say('home.venues.heading')}
                             </h2>
                             <p className="mt-2 max-w-2xl text-muted-foreground">
-                                Pools graded to carry senior nationals, the
-                                sprint gala and international meets.
+                                {say('home.venues.lede')}
                             </p>
                         </div>
                         <Button asChild variant="ghost">
@@ -723,7 +734,7 @@ export default function Home({
                             <div>
                                 <FlagRule />
                                 <h2 className="mt-4 text-3xl font-bold tracking-tight">
-                                    Latest from the pool deck
+                                    {say('home.news.heading')}
                                 </h2>
                             </div>
                             <Button asChild variant="ghost">
@@ -791,7 +802,7 @@ export default function Home({
                 <div>
                     <FlagRule />
                     <h2 className="mt-4 text-3xl font-bold tracking-tight text-balance sm:text-4xl">
-                        One sport. One nation. One team.
+                        {say('home.provinces.heading')}
                     </h2>
                     <p className="mt-3 max-w-2xl text-muted-foreground">
                         Swimming in Zimbabwe runs through {stats.provinces}{' '}
@@ -819,7 +830,7 @@ export default function Home({
                 <section className="border-t border-border/60 bg-card py-12">
                     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
                         <p className="text-center text-xs font-semibold tracking-[0.18em] text-muted-foreground uppercase">
-                            We thank our sponsors for their support
+                            {say('home.sponsors.heading')}
                         </p>
                         <div className="mt-8 flex flex-wrap items-center justify-center gap-x-16 gap-y-6">
                             {sponsors.map((sponsor) => (

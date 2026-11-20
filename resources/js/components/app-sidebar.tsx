@@ -8,6 +8,7 @@ import {
     GraduationCap,
     LayoutGrid,
     Newspaper,
+    Pencil,
     ShieldCheck,
     Trophy,
     Users,
@@ -120,6 +121,17 @@ export function AppSidebar() {
                     href: admin.academy.index(),
                     icon: BookOpen,
                     permission: 'officials.manage',
+                },
+            ],
+        },
+        {
+            label: 'Website',
+            items: [
+                {
+                    title: 'Website text',
+                    href: admin.content.index(),
+                    icon: Pencil,
+                    permission: 'content.manage',
                 },
             ],
         },

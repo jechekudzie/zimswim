@@ -15,16 +15,22 @@ use App\Models\Sponsor;
 use App\Models\SwimRecord;
 use App\Models\TechnicalOfficial;
 use App\Models\Venue;
+use App\Support\Content\PageContent;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class HomeController extends Controller
 {
+    public function __construct(private readonly PageContent $content) {}
+
     public function __invoke(): Response
     {
         $season = Season::current();
 
         return Inertia::render('public/home', [
+            // Wording the federation can change, already resolved against what
+            // the page ships with, so the page never has to check.
+            'content' => $this->content->forPage('home'),
             'season' => $season === null ? null : [
                 'name' => $season->name,
                 'starts_on' => $season->starts_on->toDateString(),

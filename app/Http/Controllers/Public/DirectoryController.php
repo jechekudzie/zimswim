@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Committee;
 use App\Models\Organization;
 use App\Models\Venue;
+use App\Support\Content\RichText;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -121,7 +122,11 @@ class DirectoryController extends Controller
         return Inertia::render('public/about', [
             'national' => [
                 'name' => $national->name,
-                'description' => $national->description,
+                /*
+                 * Just the words: this stands as the single line under the
+                 * page's title, where a paragraph of markup has nowhere to go.
+                 */
+                'description' => RichText::toPlain((string) $national->description) ?: null,
                 'email' => $national->email,
             ],
             'committees' => $committees,

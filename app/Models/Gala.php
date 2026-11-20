@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\AsRichText;
 use App\Enums\Course;
 use App\Enums\GalaLevel;
 use App\Enums\GalaStatus;
@@ -71,6 +72,7 @@ class Gala extends Model
     protected function casts(): array
     {
         return [
+            'description' => AsRichText::class,
             'level' => GalaLevel::class,
             'status' => GalaStatus::class,
             'course' => Course::class,

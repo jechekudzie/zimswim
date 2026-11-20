@@ -2,6 +2,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, ArrowRight, Check, PlayCircle } from 'lucide-react';
 import { useState } from 'react';
 
+import { Prose } from '@/components/prose';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useFlashMessages } from '@/hooks/use-flash-messages';
@@ -103,11 +104,7 @@ export default function AcademyLesson({
                 </div>
 
                 {lesson.content && (
-                    <article className="space-y-4 leading-relaxed">
-                        {lesson.content.split('\n\n').map((paragraph) => (
-                            <p key={paragraph.slice(0, 32)}>{paragraph}</p>
-                        ))}
-                    </article>
+                    <Prose className="leading-relaxed" html={lesson.content} />
                 )}
 
                 {quiz.length > 0 && (

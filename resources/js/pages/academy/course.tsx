@@ -1,6 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, Check, CircleDot, FileCheck2, Lock } from 'lucide-react';
 
+import { Prose } from '@/components/prose';
 import { PageHeader } from '@/components/admin/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -110,15 +111,10 @@ export default function AcademyCourse({
                                 <h2 className="font-semibold">
                                     About this course
                                 </h2>
-                                <div className="mt-3 space-y-4 text-sm leading-relaxed text-muted-foreground">
-                                    {course.description
-                                        .split('\n\n')
-                                        .map((paragraph) => (
-                                            <p key={paragraph.slice(0, 32)}>
-                                                {paragraph}
-                                            </p>
-                                        ))}
-                                </div>
+                                <Prose
+                                    className="mt-3 text-sm leading-relaxed text-muted-foreground"
+                                    html={course.description}
+                                />
                             </section>
                         )}
 

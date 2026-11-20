@@ -4,6 +4,7 @@ import { AlertTriangle, ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import {
     CheckboxField,
     SelectField,
+    RichTextField,
     TextareaField,
     TextField,
 } from '@/components/admin/form-field';
@@ -176,10 +177,9 @@ export default function CourseForm({
                                             name="summary"
                                             error={errors.summary}
                                         />
-                                        <TextareaField
+                                        <RichTextField
                                             label="Lesson text"
                                             name="content"
-                                            rows={5}
                                             error={errors.content}
                                         />
                                         <TextField
@@ -366,10 +366,9 @@ export default function CourseForm({
                                         defaultValue={course.summary}
                                         error={errors.summary}
                                     />
-                                    <TextareaField
+                                    <RichTextField
                                         label="Description"
                                         name="description"
-                                        rows={5}
                                         defaultValue={course.description}
                                         error={errors.description}
                                     />

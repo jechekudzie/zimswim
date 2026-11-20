@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
+import { useState } from 'react';
 
 import InputError from '@/components/input-error';
+import { RichTextEditor } from '@/components/rich-text-editor';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -124,6 +126,42 @@ export function TextareaField({
                 rows={rows}
                 defaultValue={defaultValue ?? ''}
                 className="rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+            />
+        </Field>
+    );
+}
+
+/**
+ * A description, written rather than typed.
+ *
+ * The editor keeps its document to itself, so the words reach the form the
+ * way any other field does — through a hidden input that carries whatever has
+ * been written at the moment Save is pressed. That is what lets a form built
+ * out of plain fields take one of these without becoming a controlled form.
+ */
+export function RichTextField({
+    label,
+    name,
+    defaultValue,
+    hint,
+    error,
+}: {
+    label: string;
+    name: string;
+    defaultValue?: string | null;
+    hint?: string;
+    error?: string;
+}) {
+    const [html, setHtml] = useState(defaultValue ?? '');
+
+    return (
+        <Field label={label} htmlFor={name} hint={hint} error={error}>
+            <input type="hidden" name={name} value={html} />
+            <RichTextEditor
+                id={name}
+                label={label}
+                value={defaultValue ?? ''}
+                onChange={setHtml}
             />
         </Field>
     );

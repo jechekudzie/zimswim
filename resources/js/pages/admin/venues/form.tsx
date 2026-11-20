@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import {
     CheckboxField,
     SelectField,
-    TextareaField,
+    RichTextField,
     TextField,
 } from '@/components/admin/form-field';
 import { PageHeader } from '@/components/admin/page-header';
@@ -314,7 +314,7 @@ export default function VenueForm({
                                             hint="Shown as a warning on the public register."
                                             error={errors.condition_notes}
                                         />
-                                        <TextareaField
+                                        <RichTextField
                                             label="Notes"
                                             name="notes"
                                             defaultValue={venue?.notes}

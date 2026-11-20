@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 
 /**
- * A description written in the admin, printed on a public page.
+ * A description written in the editor, printed wherever it is read.
  *
  * The markup is set directly because it is markup by the time it gets here,
  * and it is safe to set because nothing reaches this component that has not

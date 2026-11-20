@@ -17,7 +17,7 @@ import { CountUp, Reveal } from '@/components/public/reveal';
 import { Section } from '@/components/public/section';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Prose } from '@/components/public/prose';
+import { Prose } from '@/components/prose';
 import PublicLayout from '@/layouts/public-layout';
 import { photos } from '@/lib/photos';
 import { calendar, clubs, officials, records, venues } from '@/routes';

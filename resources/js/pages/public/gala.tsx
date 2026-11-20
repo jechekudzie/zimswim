@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, Clock, Mail, ShieldCheck } from 'lucide-react';
 
+import { Prose } from '@/components/prose';
 import { FlagRule } from '@/components/flag-rule';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -170,9 +171,10 @@ export default function GalaPage({
                             <h2 className="mt-4 text-xl font-bold">
                                 Key points
                             </h2>
-                            <p className="mt-3 leading-relaxed whitespace-pre-line text-muted-foreground">
-                                {gala.description}
-                            </p>
+                            <Prose
+                                className="mt-3 leading-relaxed text-muted-foreground"
+                                html={gala.description}
+                            />
                         </section>
                     )}
 

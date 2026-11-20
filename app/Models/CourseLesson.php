@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\AsRichText;
 use Carbon\CarbonImmutable;
 use Database\Factories\CourseLessonFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -33,7 +34,10 @@ class CourseLesson extends Model
 
     protected function casts(): array
     {
-        return ['is_published' => 'boolean'];
+        return [
+            'content' => AsRichText::class,
+            'is_published' => 'boolean',
+        ];
     }
 
     public function getRouteKeyName(): string

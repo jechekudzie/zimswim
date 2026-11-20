@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import {
     CheckboxField,
     SelectField,
-    TextareaField,
+    RichTextField,
     TextField,
 } from '@/components/admin/form-field';
 import { PageHeader } from '@/components/admin/page-header';
@@ -243,10 +243,9 @@ export default function GalaForm({
                                         Key points
                                     </h2>
                                     <div className="mt-5">
-                                        <TextareaField
+                                        <RichTextField
                                             label="Description"
                                             name="description"
-                                            rows={10}
                                             defaultValue={gala?.description}
                                             hint="Rules, age groups and anything entrants should know."
                                             error={errors.description}

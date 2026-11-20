@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { MapPin } from 'lucide-react';
 
+import { Prose } from '@/components/prose';
 import { Badge } from '@/components/ui/badge';
 import { ProcessBand } from '@/components/public/process-band';
 import { Section } from '@/components/public/section';
@@ -69,9 +70,10 @@ export default function Clubs({ provinces }: { provinces: Province[] }) {
                             )}
 
                             {province.description && (
-                                <p className="mt-3 text-sm text-muted-foreground">
-                                    {province.description}
-                                </p>
+                                <Prose
+                                    className="mt-3 text-sm text-muted-foreground"
+                                    html={province.description}
+                                />
                             )}
 
                             <div className="mt-5 border-t border-border pt-4">

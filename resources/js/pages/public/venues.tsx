@@ -1,6 +1,7 @@
 import { Head, router } from '@inertiajs/react';
 import { Check, Minus } from 'lucide-react';
 
+import { Prose } from '@/components/prose';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ProcessBand } from '@/components/public/process-band';
@@ -188,9 +189,10 @@ export default function Venues({
                             )}
 
                             {venue.notes && (
-                                <p className="mt-3 text-xs text-muted-foreground">
-                                    {venue.notes}
-                                </p>
+                                <Prose
+                                    className="mt-3 text-xs text-muted-foreground"
+                                    html={venue.notes}
+                                />
                             )}
                         </article>
                     ))}

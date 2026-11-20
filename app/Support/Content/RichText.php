@@ -110,6 +110,28 @@ final class RichText
     }
 
     /**
+     * Safe markup for a value that may not be markup at all.
+     *
+     * Everything written since the editor arrived is stored as markup, but
+     * the rows that predate it hold plain prose — and a line of plain prose
+     * is not markup. Printing it as though it were would swallow an
+     * ampersand and lose the paragraph breaks somebody typed, so a value with
+     * no tag in it is treated as the writing it is.
+     */
+    public static function render(?string $value): string
+    {
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return '';
+        }
+
+        return preg_match('/<[a-z][a-z0-9]*(\\s[^<>]*)?>/i', $value) === 1
+            ? self::sanitise($value)
+            : self::fromPlain($value);
+    }
+
+    /**
      * Markup for a plain sentence written in the catalogue.
      *
      * The catalogue holds the wording the site ships with as ordinary prose,

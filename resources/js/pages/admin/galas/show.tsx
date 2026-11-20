@@ -1,6 +1,7 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { AlertTriangle, ArrowLeft, Check, Pencil, X } from 'lucide-react';
 
+import { Prose } from '@/components/prose';
 import { PageHeader } from '@/components/admin/page-header';
 import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
@@ -166,9 +167,10 @@ export default function GalaShow({
                             </dl>
 
                             {gala.description && (
-                                <p className="mt-6 border-t border-border pt-5 text-sm whitespace-pre-line text-muted-foreground">
-                                    {gala.description}
-                                </p>
+                                <Prose
+                                    className="mt-6 border-t border-border pt-5 text-sm text-muted-foreground"
+                                    html={gala.description}
+                                />
                             )}
                         </section>
 

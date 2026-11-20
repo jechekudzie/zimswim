@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import {
     CheckboxField,
     SelectField,
-    TextareaField,
+    RichTextField,
     TextField,
 } from '@/components/admin/form-field';
 import { PageHeader } from '@/components/admin/page-header';
@@ -155,7 +155,7 @@ export default function OrganizationForm({
                                 </div>
 
                                 <div className="mt-5">
-                                    <TextareaField
+                                    <RichTextField
                                         label="Description"
                                         name="description"
                                         defaultValue={organization?.description}

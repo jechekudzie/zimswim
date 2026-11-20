@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\AsRichText;
 use App\Enums\GalaLevel;
 use App\Enums\VenueGrade;
 use Carbon\CarbonImmutable;
@@ -67,6 +68,7 @@ class Venue extends Model
     protected function casts(): array
     {
         return [
+            'notes' => AsRichText::class,
             'grade' => VenueGrade::class,
             'starting_blocks' => 'boolean',
             'backstroke_ledges' => 'boolean',

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\AsRichText;
 use App\Enums\AffiliationStatus;
 use App\Enums\OrganizationType;
 use Carbon\CarbonImmutable;
@@ -59,6 +60,7 @@ class Organization extends Model
     protected function casts(): array
     {
         return [
+            'description' => AsRichText::class,
             'type' => OrganizationType::class,
             'affiliation_status' => AffiliationStatus::class,
             'affiliated_on' => 'date',

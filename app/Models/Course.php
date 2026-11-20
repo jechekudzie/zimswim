@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\AsRichText;
 use App\Enums\OfficialCategory;
 use App\Enums\OfficialGrade;
 use Carbon\CarbonImmutable;
@@ -52,6 +53,7 @@ class Course extends Model
     protected function casts(): array
     {
         return [
+            'description' => AsRichText::class,
             'official_category' => OfficialCategory::class,
             'awards_grade' => OfficialGrade::class,
             'fee' => 'decimal:2',

@@ -3,6 +3,7 @@
 use App\Models\ContentBlock;
 use App\Support\Content\ContentCatalogue;
 use App\Support\Content\PageContent;
+use App\Support\Content\RichText;
 use App\Support\Roles;
 
 beforeEach(function (): void {
@@ -95,7 +96,7 @@ it('leaves the page standing when a row is removed behind its back', function ()
     $this->get(route('home'))->assertOk();
 
     expect(app(PageContent::class)->forPage('home')['home.hero.lede'])
-        ->toBe(ContentCatalogue::all()['home.hero.lede']['default']);
+        ->toBe(RichText::canonical(ContentCatalogue::all()['home.hero.lede']['default']));
 });
 
 it('shows every block on the editing screen with what it currently says', function (): void {
@@ -108,5 +109,83 @@ it('shows every block on the editing screen with what it currently says', functi
             ->has('groups', 6)
             ->where('groups.0.blocks.0.value', ContentCatalogue::all()['home.hero.heading']['default'])
             ->where('groups.0.blocks.0.changed', false)
+            ->etc());
+});
+
+it('puts a written description on the public page as markup', function (): void {
+    $this->actingAs($this->admin)
+        ->put(route('admin.content.update'), [
+            'page' => 'home',
+            'blocks' => ['home.officials.note' => '<p>Ask your <strong>club</strong> secretary.</p>'],
+        ])->assertRedirect();
+
+    expect(app(PageContent::class)->forPage('home')['home.officials.note'])
+        ->toBe('<p>Ask your <strong>club</strong> secretary.</p>');
+});
+
+it('reduces a description to what a page may show before storing it', function (): void {
+    $this->actingAs($this->admin)
+        ->put(route('admin.content.update'), [
+            'page' => 'home',
+            'blocks' => [
+                'home.officials.note' => '<h2 style="color:red">Shouting</h2>'
+                    .'<script>steal()</script>'
+                    .'<p><a href="javascript:alert(1)">tap</a> here</p>',
+            ],
+        ])->assertRedirect();
+
+    // Stored sanitised, so nothing downstream has to remember to do it.
+    expect(ContentBlock::where('key', 'home.officials.note')->value('value'))
+        ->toBe('<p>Shouting</p><p>tap here</p>');
+});
+
+it('will not print a description written straight into the table', function (): void {
+    // A seeder, a console or a restored backup can all put a row here
+    // without going through the editing screen.
+    ContentBlock::create([
+        'key' => 'home.officials.note',
+        'value' => '<p onclick="steal()">Note</p><script>steal()</script>',
+    ]);
+
+    expect(app(PageContent::class)->forPage('home')['home.officials.note'])
+        ->toBe('<p>Note</p>');
+});
+
+it('does not store a description that only looks different', function (): void {
+    $original = ContentCatalogue::all()['home.officials.note']['default'];
+
+    $this->actingAs($this->admin)
+        ->put(route('admin.content.update'), [
+            'page' => 'home',
+            'blocks' => ['home.officials.note' => RichText::canonical($original)],
+        ])->assertRedirect();
+
+    expect(ContentBlock::count())->toBe(0);
+});
+
+it('treats emptying the editor as putting the original description back', function (): void {
+    ContentBlock::create(['key' => 'home.officials.note', 'value' => '<p>Something else</p>']);
+
+    $this->actingAs($this->admin)
+        ->put(route('admin.content.update'), [
+            'page' => 'home',
+            // What an editor sends once the words are deleted.
+            'blocks' => ['home.officials.note' => '<p></p>'],
+        ])->assertRedirect();
+
+    expect(ContentBlock::where('key', 'home.officials.note')->exists())->toBeFalse();
+});
+
+it('opens the editor on the original description as markup', function (): void {
+    $this->actingAs($this->admin)
+        ->get(route('admin.content.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('groups.0.blocks.2.type', 'rich')
+            ->where('groups.0.blocks.2.value', RichText::canonical(
+                ContentCatalogue::all()['home.hero.lede']['default'],
+            ))
+            // Shown as "Originally:", where plain prose reads better.
+            ->where('groups.0.blocks.2.original', ContentCatalogue::all()['home.hero.lede']['default'])
             ->etc());
 });

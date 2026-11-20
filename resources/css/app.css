@@ -465,3 +465,64 @@
         }
     }
 }
+
+/*
+ * Descriptions the federation writes.
+ *
+ * One class, used both by the editor in the admin and by the public page, so
+ * what somebody sees while writing is laid out by the same rules as what a
+ * reader gets. Everything is inherited and nothing is coloured: these blocks
+ * sit on a white card in one place and over a photograph in another, and the
+ * surrounding page stays in charge of the size, the family and the colour.
+ */
+@layer components {
+    .rich-text > * + * {
+        margin-top: 0.75em;
+    }
+
+    .rich-text :where(ul, ol) {
+        padding-left: 1.4em;
+    }
+
+    .rich-text :where(ul) {
+        list-style-type: disc;
+    }
+
+    .rich-text :where(ol) {
+        list-style-type: decimal;
+    }
+
+    .rich-text :where(li + li) {
+        margin-top: 0.3em;
+    }
+
+    .rich-text :where(li)::marker {
+        /* The bullet recedes; the words are the content. */
+        color: color-mix(in oklab, currentColor 55%, transparent);
+    }
+
+    .rich-text :where(strong) {
+        font-weight: 600;
+    }
+
+    /*
+     * A link takes the colour of the text around it and is marked by its
+     * underline alone, because these run over the deep-water bands as often
+     * as over a white card and no single accent reads on both.
+     */
+    .rich-text :where(a) {
+        text-decoration-line: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 3px;
+        text-decoration-color: color-mix(
+            in oklab,
+            currentColor 45%,
+            transparent
+        );
+        transition: text-decoration-color 150ms ease;
+    }
+
+    .rich-text :where(a):hover {
+        text-decoration-color: currentColor;
+    }
+}

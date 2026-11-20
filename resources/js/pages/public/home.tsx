@@ -17,6 +17,7 @@ import { CountUp, Reveal } from '@/components/public/reveal';
 import { Section } from '@/components/public/section';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Prose } from '@/components/public/prose';
 import PublicLayout from '@/layouts/public-layout';
 import { photos } from '@/lib/photos';
 import { calendar, clubs, officials, records, venues } from '@/routes';
@@ -257,12 +258,11 @@ export default function Home({
                             </span>
                         </h1>
 
-                        <p
+                        <Prose
                             className="animate-lane-rise mt-7 max-w-xl text-lg leading-relaxed text-white/80"
                             style={{ animationDelay: '150ms' }}
-                        >
-                            {say('home.hero.lede')}
-                        </p>
+                            html={say('home.hero.lede')}
+                        />
 
                         <div
                             className="animate-lane-rise mt-10 flex flex-wrap gap-3"
@@ -404,9 +404,10 @@ export default function Home({
                         <h2 className="mt-4 text-3xl font-bold tracking-tight">
                             {say('home.upcoming.heading')}
                         </h2>
-                        <p className="mt-2 max-w-2xl text-muted-foreground">
-                            {say('home.upcoming.lede')}
-                        </p>
+                        <Prose
+                            className="mt-2 max-w-2xl text-muted-foreground"
+                            html={say('home.upcoming.lede')}
+                        />
                     </div>
                     <Button asChild variant="ghost">
                         <Link href={calendar()}>
@@ -480,12 +481,14 @@ export default function Home({
                         <h2 className="mt-4 text-3xl font-bold tracking-tight text-balance text-white sm:text-4xl">
                             {say('home.officials.heading')}
                         </h2>
-                        <p className="mt-5 max-w-xl leading-relaxed text-white/70">
-                            {say('home.officials.lede')}
-                        </p>
-                        <p className="mt-4 max-w-xl leading-relaxed text-white/70">
-                            {say('home.officials.second')}
-                        </p>
+                        <Prose
+                            className="mt-5 max-w-xl leading-relaxed text-white/70"
+                            html={say('home.officials.lede')}
+                        />
+                        <Prose
+                            className="mt-4 max-w-xl leading-relaxed text-white/70"
+                            html={say('home.officials.second')}
+                        />
 
                         <div className="mt-9 flex flex-wrap gap-3">
                             <Button asChild size="lg">
@@ -505,9 +508,10 @@ export default function Home({
                             </Button>
                         </div>
 
-                        <p className="mt-5 max-w-lg text-sm text-white/70">
-                            {say('home.officials.note')}
-                        </p>
+                        <Prose
+                            className="mt-5 max-w-lg text-sm text-white/70"
+                            html={say('home.officials.note')}
+                        />
                     </Reveal>
 
                     <Reveal delay={120}>
@@ -540,9 +544,10 @@ export default function Home({
                     <h2 className="mt-4 text-3xl font-bold tracking-tight">
                         {say('home.pathways.heading')}
                     </h2>
-                    <p className="mt-2 max-w-2xl text-muted-foreground">
-                        {say('home.pathways.lede')}
-                    </p>
+                    <Prose
+                        className="mt-2 max-w-2xl text-muted-foreground"
+                        html={say('home.pathways.lede')}
+                    />
 
                     <div className="mt-10 grid gap-6 md:grid-cols-3">
                         {pathways.map((pathway) => (
@@ -602,12 +607,10 @@ export default function Home({
                                 {say('home.records.heading_accent')}
                             </span>
                         </h2>
-                        <p className="mt-5 max-w-xl leading-relaxed text-white/70">
-                            Records are proposed automatically when a time beats
-                            the standing mark, and only change once the
-                            authorised body ratifies them. Long course and short
-                            course, every age group, girls and boys.
-                        </p>
+                        <Prose
+                            className="mt-5 max-w-xl leading-relaxed text-white/70"
+                            html={say('home.records.lede')}
+                        />
                         <Button
                             asChild
                             size="lg"
@@ -671,9 +674,10 @@ export default function Home({
                             <h2 className="mt-4 text-3xl font-bold tracking-tight">
                                 {say('home.venues.heading')}
                             </h2>
-                            <p className="mt-2 max-w-2xl text-muted-foreground">
-                                {say('home.venues.lede')}
-                            </p>
+                            <Prose
+                                className="mt-2 max-w-2xl text-muted-foreground"
+                                html={say('home.venues.lede')}
+                            />
                         </div>
                         <Button asChild variant="ghost">
                             <Link href={venues()}>

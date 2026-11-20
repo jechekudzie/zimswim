@@ -17,6 +17,12 @@ namespace App\Support\Content;
  * - Adding something editable is one entry here. It appears on the editing
  *   screen by itself, with its current wording already in the box.
  *
+ * A block is one of three kinds. `text` is a line somebody types, like a
+ * heading. `rich` is a description, written with emphasis, links and lists,
+ * and stored as the markup that allows — see RichText for the whole of what
+ * one may contain. `image` is a photograph uploaded to stand in for the one
+ * the page ships with.
+ *
  * What is deliberately not here: button labels, table headings, form hints,
  * and anything stating a rule. The rules — minimum ages, learner sessions,
  * pass marks — are read from the standards the register enforces, and must
@@ -49,7 +55,7 @@ class ContentCatalogue
                             ],
                             'home.hero.lede' => [
                                 'label' => 'Opening sentence',
-                                'type' => 'multiline',
+                                'type' => 'rich',
                                 'default' => 'One national home for the calendar, clubs, pools, the officials pathway and every ratified Zimbabwean record.',
                             ],
                             'home.hero.primary_action' => [
@@ -85,7 +91,7 @@ class ContentCatalogue
                             ],
                             'home.upcoming.lede' => [
                                 'label' => 'Standfirst',
-                                'type' => 'multiline',
+                                'type' => 'rich',
                                 'default' => 'Only meets on the official provincial and national calendars are recognised by Zimbabwe Swimming.',
                             ],
                             'home.upcoming.empty' => [
@@ -105,17 +111,17 @@ class ContentCatalogue
                             ],
                             'home.officials.lede' => [
                                 'label' => 'First paragraph',
-                                'type' => 'multiline',
+                                'type' => 'rich',
                                 'default' => "Every gala on this calendar is run by volunteers at the water's edge — timekeepers, inspectors of turns, judges of stroke, a starter and a referee. Short a crew and the swimmers wait behind the blocks.",
                             ],
                             'home.officials.second' => [
                                 'label' => 'Second paragraph',
-                                'type' => 'multiline',
+                                'type' => 'rich',
                                 'default' => 'Almost every national referee in the country started with a stopwatch and one Saturday morning.',
                             ],
                             'home.officials.note' => [
                                 'label' => 'Note under the buttons',
-                                'type' => 'multiline',
+                                'type' => 'rich',
                                 'default' => 'Officials are accredited through an affiliated club, so joining one is the first step if you are not already a member.',
                             ],
                         ],
@@ -130,7 +136,7 @@ class ContentCatalogue
                             ],
                             'home.pathways.lede' => [
                                 'label' => 'Standfirst',
-                                'type' => 'multiline',
+                                'type' => 'rich',
                                 'default' => 'Different roles. Same team. Whether you swim, time, judge or drive to galas on a Saturday morning, the sport runs on people.',
                             ],
                         ],
@@ -150,7 +156,7 @@ class ContentCatalogue
                             ],
                             'home.records.lede' => [
                                 'label' => 'Standfirst',
-                                'type' => 'multiline',
+                                'type' => 'rich',
                                 'default' => 'Records are proposed automatically when a time beats the standing mark, and only change once the authorised body ratifies them. Long course and short course, every age group, girls and boys.',
                             ],
                         ],
@@ -165,7 +171,7 @@ class ContentCatalogue
                             ],
                             'home.venues.lede' => [
                                 'label' => 'Venues standfirst',
-                                'type' => 'multiline',
+                                'type' => 'rich',
                                 'default' => 'Pools graded to carry senior nationals, the sprint gala and international meets.',
                             ],
                             'home.news.heading' => [

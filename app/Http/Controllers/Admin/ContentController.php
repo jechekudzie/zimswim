@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ContentBlock;
 use App\Support\Content\ContentCatalogue;
+use App\Support\Content\RichText;
 use App\Support\Permissions;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -72,10 +73,10 @@ class ContentController extends Controller
                                 'hint' => $block['hint'] ?? null,
                                 'original' => $block['default'],
                                 // What is in the box: what they wrote, or the
-                                // original, so nobody has to guess which.
-                                'value' => $override === null
-                                    ? $block['default']
-                                    : ($override->value ?? $block['default']),
+                                // original, so nobody has to guess which. A
+                                // description arrives as markup, because that
+                                // is what the editor opens on.
+                                'value' => $this->current($block, $override),
                                 'image_url' => $override?->image_path === null
                                     ? null
                                     : Storage::disk('public')->url($override->image_path),
@@ -88,6 +89,24 @@ class ContentController extends Controller
                 ])
                 ->values(),
         ]);
+    }
+
+    /**
+     * What a box should open on.
+     *
+     * @param  array{label: string, type: string, default: string, hint?: string}  $block
+     */
+    private function current(array $block, ?ContentBlock $override): string
+    {
+        $written = trim((string) $override?->value);
+
+        if ($block['type'] !== 'rich') {
+            return $written === '' ? $block['default'] : $written;
+        }
+
+        return $written === ''
+            ? RichText::canonical($block['default'])
+            : RichText::sanitise($written);
     }
 
     /**
@@ -115,8 +134,18 @@ class ContentController extends Controller
                 continue;
             }
 
-            $value = trim((string) $value);
-            $isOriginal = $value === '' || $value === trim($catalogue[$key]['default']);
+            /*
+             * A description is reduced to the vocabulary the page allows
+             * before anything else happens to it, so what is compared,
+             * stored and later printed are all one and the same string.
+             */
+            $value = $catalogue[$key]['type'] === 'rich'
+                ? RichText::sanitise((string) $value)
+                : trim((string) $value);
+
+            $isOriginal = $value === '' || $value === ($catalogue[$key]['type'] === 'rich'
+                ? RichText::canonical($catalogue[$key]['default'])
+                : trim($catalogue[$key]['default']));
 
             if ($isOriginal) {
                 $changed += (int) (bool) ContentBlock::where('key', $key)->whereNull('image_path')->delete();

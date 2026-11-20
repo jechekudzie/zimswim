@@ -45,9 +45,11 @@ class PageContent
         foreach ($blocks as $key => $block) {
             $override = $overrides->get($key);
 
-            $values[$key] = $block['type'] === 'image'
-                ? $this->image($override)
-                : $this->text($override, $block['default']);
+            $values[$key] = match ($block['type']) {
+                'image' => $this->image($override),
+                'rich' => $this->rich($override, $block['default']),
+                default => $this->text($override, $block['default']),
+            };
         }
 
         return $this->resolved[$page] = $values;
@@ -64,6 +66,23 @@ class PageContent
         $value = trim((string) $override?->value);
 
         return $value === '' ? $default : $value;
+    }
+
+    /**
+     * A description, as markup the page prints without escaping it.
+     *
+     * Sanitised again here even though it was sanitised when it was saved.
+     * The cost is a parse of a sentence or two; what it buys is that a row
+     * written straight into the table — by a seeder, by somebody in a
+     * console, by a restored backup — still cannot put a script on a public
+     * page. This is the only place the markup is trusted, so it is the right
+     * place to stop trusting it.
+     */
+    private function rich(?ContentBlock $override, string $default): string
+    {
+        $value = RichText::sanitise((string) $override?->value);
+
+        return $value === '' ? RichText::canonical($default) : $value;
     }
 
     /**

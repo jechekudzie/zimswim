@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import { PageHeader } from '@/components/admin/page-header';
 import InputError from '@/components/input-error';
+import { RichTextEditor } from '@/components/rich-text-editor';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,7 +17,7 @@ import type { Option } from '@/types';
 type Block = {
     key: string;
     label: string;
-    type: 'text' | 'multiline' | 'image';
+    type: 'text' | 'rich' | 'image';
     hint: string | null;
     original: string;
     value: string;
@@ -222,24 +223,21 @@ export default function ContentIndex({
                                                 )}
                                             </div>
 
-                                            {block.type === 'multiline' ? (
-                                                <textarea
+                                            {block.type === 'rich' ? (
+                                                <RichTextEditor
                                                     id={block.key}
-                                                    rows={3}
+                                                    label={block.label}
                                                     value={
                                                         form.data.blocks[
                                                             block.key
                                                         ] ?? ''
                                                     }
-                                                    onChange={(event) =>
+                                                    onChange={(html) =>
                                                         form.setData('blocks', {
                                                             ...form.data.blocks,
-                                                            [block.key]:
-                                                                event.target
-                                                                    .value,
+                                                            [block.key]: html,
                                                         })
                                                     }
-                                                    className="rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                                                 />
                                             ) : (
                                                 <Input

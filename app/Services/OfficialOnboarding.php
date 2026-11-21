@@ -10,6 +10,7 @@ use App\Models\TechnicalOfficial;
 use App\Models\User;
 use App\Notifications\OfficialApplicationDeclined;
 use App\Notifications\OfficialApplicationReceived;
+use App\Notifications\OfficialRegistered;
 use App\Notifications\OfficialWelcome;
 use App\Support\Roles;
 use Illuminate\Support\Facades\DB;
@@ -70,7 +71,12 @@ class OfficialOnboarding
 
         [$user, $official, $course, $accountIsNew] = DB::transaction(function () use ($application, $reviewer, $notes): array {
             $accountIsNew = User::where('email', $application->email)->doesntExist();
-            $user = $this->account($application);
+            $user = $this->account(
+                $application->email,
+                $application->fullName(),
+                $application->phone,
+                $application->organization_id,
+            );
             $official = $this->registerOfficial($application, $user);
             $course = $this->enrol($application, $user, $official);
 
@@ -124,34 +130,74 @@ class OfficialOnboarding
     }
 
     /**
+     * Give an official who was written onto the register by hand the login
+     * that nobody opened for them.
+     *
+     * The register has a second door: a registrar typing in somebody the
+     * federation has used for years. That path creates a record and nothing
+     * else, so the person it describes cannot sign in, cannot be rostered
+     * through the portal, and never learns the record exists. This closes it.
+     *
+     * Without an email address there is nowhere to send them and no handle to
+     * open an account under, so this does nothing and says so by returning
+     * null rather than failing — the registrar can add an address later and
+     * invite them then.
+     */
+    public function invite(TechnicalOfficial $official): ?User
+    {
+        if ($official->email === null || $official->email === '') {
+            return null;
+        }
+
+        $accountIsNew = User::where('email', $official->email)->doesntExist();
+
+        $user = DB::transaction(function () use ($official): User {
+            $user = $this->account(
+                $official->email,
+                $official->fullName(),
+                $official->phone,
+                $official->organization_id,
+            );
+
+            $official->update(['user_id' => $user->getKey()]);
+
+            return $user;
+        });
+
+        $user->notify(new OfficialRegistered($official->fresh(), $accountIsNew));
+
+        return $user;
+    }
+
+    /**
      * The account they will sign in with.
      *
      * Somebody who already has one — a parent, a coach, a swimmer — keeps it
      * and is simply given the official's role at their club, rather than
      * ending up with two logins for the same person.
      */
-    private function account(OfficialApplication $application): User
+    private function account(string $email, string $name, ?string $phone, int $organizationId): User
     {
-        $user = User::where('email', $application->email)->first();
+        $user = User::where('email', $email)->first();
 
         if ($user === null) {
             $user = User::create([
-                'name' => $application->fullName(),
-                'email' => $application->email,
-                'phone' => $application->phone,
+                'name' => $name,
+                'email' => $email,
+                'phone' => $phone,
                 'password' => Hash::make(Str::password(16)),
-                'current_organization_id' => $application->organization_id,
+                'current_organization_id' => $organizationId,
                 'is_active' => true,
             ]);
         }
 
-        if (! $user->organizations()->whereKey($application->organization_id)->exists()) {
-            $user->organizations()->attach($application->organization_id, [
+        if (! $user->organizations()->whereKey($organizationId)->exists()) {
+            $user->organizations()->attach($organizationId, [
                 'is_default' => $user->organizations()->count() === 0,
             ]);
         }
 
-        setPermissionsTeamId($application->organization_id);
+        setPermissionsTeamId($organizationId);
         $user->assignRole(Roles::GALA_OFFICIAL);
         setPermissionsTeamId(null);
 

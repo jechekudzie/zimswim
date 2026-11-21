@@ -1,5 +1,5 @@
 import { Form, Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Award, FileText, Pencil } from 'lucide-react';
+import { ArrowLeft, Award, FileText, Pencil, Send } from 'lucide-react';
 
 import { SelectField, TextField } from '@/components/admin/form-field';
 import { PageHeader } from '@/components/admin/page-header';
@@ -50,6 +50,7 @@ export default function OfficialShow({
         club: string;
         province: string | null;
         status: string;
+        has_login: boolean;
     };
     accreditations: Accreditation[];
     certificates: {
@@ -108,15 +109,51 @@ export default function OfficialShow({
                     description={`${official.registration_number} · ${official.club}${official.province ? ` · ${official.province}` : ''}`}
                     actions={
                         can.manage && (
-                            <Button asChild variant="outline">
-                                <Link href={admin.officials.edit(official.id)}>
-                                    <Pencil className="size-4" />
-                                    Edit
-                                </Link>
-                            </Button>
+                            <div className="flex flex-wrap gap-2">
+                                {/*
+                                 * Most of the register predates being able to
+                                 * invite anybody, so this is how those rows
+                                 * become people who can actually sign in.
+                                 */}
+                                {!official.has_login && official.email && (
+                                    <Form
+                                        {...admin.officials.invite.form(
+                                            official.id,
+                                        )}
+                                        options={{ preserveScroll: true }}
+                                    >
+                                        {({ processing }) => (
+                                            <Button
+                                                type="submit"
+                                                variant="outline"
+                                                disabled={processing}
+                                            >
+                                                <Send className="size-4" />
+                                                Open an account
+                                            </Button>
+                                        )}
+                                    </Form>
+                                )}
+                                <Button asChild variant="outline">
+                                    <Link
+                                        href={admin.officials.edit(official.id)}
+                                    >
+                                        <Pencil className="size-4" />
+                                        Edit
+                                    </Link>
+                                </Button>
+                            </div>
                         )
                     }
                 />
+
+                {can.manage && !official.has_login && !official.email && (
+                    <p className="rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">
+                        {official.name.split(' ')[0]} cannot sign in, and has no
+                        email address to send an invitation to. Add one and you
+                        can open an account for them.
+                    </p>
+                )}
 
                 <div className="grid gap-6 lg:grid-cols-3">
                     <div className="space-y-6 lg:col-span-2">

@@ -11,6 +11,7 @@ use App\Models\Certificate;
 use App\Models\OfficialAccreditation;
 use App\Models\Organization;
 use App\Models\TechnicalOfficial;
+use App\Services\OfficialOnboarding;
 use App\Support\Csv;
 use App\Support\OrganizationContext;
 use App\Support\OrganizationOptions;
@@ -27,6 +28,7 @@ class TechnicalOfficialController extends Controller
     public function __construct(
         private readonly OrganizationContext $context,
         private readonly OrganizationOptions $options,
+        private readonly OfficialOnboarding $onboarding,
     ) {}
 
     public function index(Request $request): Response
@@ -81,6 +83,8 @@ class TechnicalOfficialController extends Controller
                 'club' => $official->club->name,
                 'province' => $official->province?->name,
                 'status' => $official->status,
+                // Whether there is anybody behind this record who can sign in.
+                'has_login' => $official->user_id !== null,
             ],
             'accreditations' => $official->accreditations->map(fn (OfficialAccreditation $accreditation): array => [
                 'id' => $accreditation->getKey(),
@@ -228,8 +232,21 @@ class TechnicalOfficialController extends Controller
 
         $official = TechnicalOfficial::create($this->validated($request));
 
+        /*
+         * An official written in by hand used to get a record and nothing
+         * else: no login, no notice that they were on the register at all.
+         * The registrar can still hold one back — somebody transcribing a
+         * paper register may not want fifty emails going out at once — but
+         * the default is to tell the person they have been registered.
+         */
+        // An unticked checkbox is absent from the request rather than false,
+        // which is why this reads as "only when asked" — and why nothing is
+        // posted to anybody by a caller that did not mention it at all.
+        $invited = $request->boolean('invite') && $this->onboarding->invite($official) !== null;
+
         return to_route('admin.officials.show', $official)
-            ->with('success', $official->fullName().' has been added to the officials register.');
+            ->with('success', $official->fullName().' has been added to the officials register.'.
+                ($invited ? ' A welcome is on its way to '.$official->email.'.' : ''));
     }
 
     public function edit(TechnicalOfficial $official): Response
@@ -261,6 +278,29 @@ class TechnicalOfficialController extends Controller
         $official->update($this->validated($request, $official));
 
         return back()->with('success', $official->fullName().' has been updated.');
+    }
+
+    /**
+     * Open an account for an official who has not got one, and welcome them.
+     *
+     * Separate from creating the record because most of the register predates
+     * this: officials were written in long before anybody could be invited,
+     * and an address added to one of those rows is the moment it becomes
+     * possible. Sending it twice is harmless — the second one finds the
+     * account that already exists and sends them to the portal rather than
+     * handing out another password link.
+     */
+    public function invite(TechnicalOfficial $official): RedirectResponse
+    {
+        $this->authorize('update', $official);
+
+        if ($this->onboarding->invite($official) === null) {
+            return back()->withErrors([
+                'email' => 'Add an email address before inviting '.$official->first_name.'. There is nowhere to send it otherwise.',
+            ]);
+        }
+
+        return back()->with('success', 'A welcome is on its way to '.$official->email.'.');
     }
 
     private function canManage(TechnicalOfficial $official): bool

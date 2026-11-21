@@ -237,6 +237,13 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::post('galas/{gala}/results/{event}', [ResultController::class, 'store'])->name('galas.results.store');
         Route::post('galas/{gala}/results/{event}/publish', [ResultController::class, 'publish'])->name('galas.results.publish');
 
+        /*
+         * Opens a login for an official who was written onto the register
+         * before anybody could be invited, and tells them they are on it.
+         */
+        Route::post('officials/{official}/invite', [TechnicalOfficialController::class, 'invite'])
+            ->name('officials.invite');
+
         Route::post('officials/{official}/accreditations', [AccreditationController::class, 'store'])
             ->name('officials.accreditations.store');
         Route::patch('officials/{official}/accreditations/{accreditation}', [AccreditationController::class, 'update'])

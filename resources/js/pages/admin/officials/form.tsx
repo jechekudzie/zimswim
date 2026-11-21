@@ -1,7 +1,11 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 
-import { SelectField, TextField } from '@/components/admin/form-field';
+import {
+    CheckboxField,
+    SelectField,
+    TextField,
+} from '@/components/admin/form-field';
 import { PageHeader } from '@/components/admin/page-header';
 import { Button } from '@/components/ui/button';
 import { useFlashMessages } from '@/hooks/use-flash-messages';
@@ -157,6 +161,17 @@ export default function OfficialForm({
                                     error={errors.status}
                                 />
                             </div>
+
+                            {!editing && (
+                                <div className="mt-6 rounded-lg border border-border bg-muted/30 p-4">
+                                    <CheckboxField
+                                        label="Open an account and welcome them"
+                                        name="invite"
+                                        defaultChecked
+                                        description="Sends their registration number, what the register holds for them, and a link to set a password. Needs an email address; leave it off if you are transcribing a paper register and do not want the post going out yet."
+                                    />
+                                </div>
+                            )}
 
                             <Button
                                 type="submit"

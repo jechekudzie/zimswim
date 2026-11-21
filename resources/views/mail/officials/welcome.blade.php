@@ -2,8 +2,8 @@
   The welcome an admitted official gets.
 
   Everything is styled inline. The shared theme is inlined by Laravel for the
-  components it ships, but the pieces here — the register card, the steps, the
-  exam strip — are bespoke to this message, and a mail client that drops a
+  components it ships, but the pieces here — the steps and the exam strip, and
+  the register card it pulls in — are bespoke, and a mail client that drops a
   <style> block would leave them as unstyled rows. Tables and inline styles
   render the same in Outlook, Gmail and Apple Mail; flex, grid and border-radius
   do not, so nothing here depends on them. Rounded corners are used where
@@ -17,35 +17,15 @@ officials register, you are training as a {{ $category }}, and everything you
 need to start is below.
 
 {{-- The hero: being on the register, with the number that proves it. --}}
-<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin: 28px 0;">
-<tr>
-<td style="background-color: #f3f8fe; border: 1px solid #dbe7f3; border-left: 4px solid #007a3d; border-radius: 4px; padding: 22px 24px;">
-<p style="margin: 0 0 2px; font-size: 13px; line-height: 1.4; color: #52525b; text-align: left;">Your registration number</p>
-<p style="margin: 0; font-size: 30px; line-height: 1.15; font-weight: bold; letter-spacing: 1px; color: #0b2a4a; text-align: left;">{{ $registrationNumber }}</p>
-
-<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-top: 18px; border-top: 1px solid #dbe7f3;">
-<tr>
-<td width="38%" valign="top" style="padding: 10px 12px 0 0; font-size: 14px; line-height: 1.4; color: #52525b;">Training as</td>
-<td valign="top" style="padding: 10px 0 0; font-size: 14px; line-height: 1.4; font-weight: bold; color: #111111;">{{ $category }}</td>
-</tr>
-<tr>
-<td width="38%" valign="top" style="padding: 8px 12px 0 0; font-size: 14px; line-height: 1.4; color: #52525b;">Registered through</td>
-<td valign="top" style="padding: 8px 0 0; font-size: 14px; line-height: 1.4; font-weight: bold; color: #111111;">{{ $club }}</td>
-</tr>
-@if ($province)
-<tr>
-<td width="38%" valign="top" style="padding: 8px 12px 0 0; font-size: 14px; line-height: 1.4; color: #52525b;">Province</td>
-<td valign="top" style="padding: 8px 0 0; font-size: 14px; line-height: 1.4; font-weight: bold; color: #111111;">{{ $province }}</td>
-</tr>
-@endif
-<tr>
-<td width="38%" valign="top" style="padding: 8px 12px 0 0; font-size: 14px; line-height: 1.4; color: #52525b;">Standing</td>
-<td valign="top" style="padding: 8px 0 0; font-size: 14px; line-height: 1.4; font-weight: bold; color: #111111;">Learner</td>
-</tr>
-</table>
-</td>
-</tr>
-</table>
+@include('mail.officials.partials.register-card', [
+    'registrationNumber' => $registrationNumber,
+    'rows' => array_filter([
+        'Training as' => $category,
+        'Registered through' => $club,
+        'Province' => $province,
+        'Standing' => 'Learner',
+    ]),
+])
 
 @if ($accountIsNew)
 An account has been opened for you. Set a password and it is yours — nothing
@@ -105,21 +85,23 @@ have. Your new role as an official is on it.
 
 ## Where to find things
 
-{{-- Named links, not bare URLs: the theme breaks a long address mid-word to
-     stop it overflowing, which leaves it unreadable and unquotable. --}}
-[**Your portal**]({{ $portalUrl }}) is the one page that answers how far along
+{{-- Written as raw anchors rather than markdown links because the theme sets
+     word-break: break-all on body links — right for a bare URL, which would
+     otherwise overflow, but it splits link *text* mid-word too ("the pathw
+     ay"). An inline style survives the inliner and overrides it. --}}
+<a href="{{ $portalUrl }}" style="color: #007a3d; font-weight: bold; word-break: normal;">Your portal</a> is the one page that answers how far along
 you are: the lessons you have left, your exam attempts, the sessions a referee
 has signed, and your certificates once they are issued.
 
 @if ($course)
-[**The Academy**]({{ $academyUrl }}) holds your course, and remembers where you
+<a href="{{ $academyUrl }}" style="color: #007a3d; font-weight: bold; word-break: normal;">The Academy</a> holds your course, and remembers where you
 left off.
 @else
-[**The Academy**]({{ $academyUrl }}) is where your course will appear, once one
+<a href="{{ $academyUrl }}" style="color: #007a3d; font-weight: bold; word-break: normal;">The Academy</a> is where your course will appear, once one
 is published for your category.
 @endif
 
-[**The pathway**]({{ $pathwayUrl }}) sets out every category, the grades above
+<a href="{{ $pathwayUrl }}" style="color: #007a3d; font-weight: bold; word-break: normal;">The pathway</a> sets out every category, the grades above
 it, and what each one is responsible for on the deck.
 
 Keep {{ $registrationNumber }} somewhere you can find it — it is your number on

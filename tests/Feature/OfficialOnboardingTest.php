@@ -7,10 +7,9 @@ use App\Models\CourseEnrolment;
 use App\Models\OfficialApplication;
 use App\Models\TechnicalOfficial;
 use App\Models\User;
-use App\Notifications\AccountCreated;
-use App\Notifications\OfficialApplicationApproved;
 use App\Notifications\OfficialApplicationDeclined;
 use App\Notifications\OfficialApplicationReceived;
+use App\Notifications\OfficialWelcome;
 use App\Support\Roles;
 use Illuminate\Support\Facades\Notification;
 
@@ -106,8 +105,9 @@ it('opens an account, a register entry and an enrolment when it is approved', fu
             ->where('course_id', $course->getKey())
             ->exists())->toBeTrue();
 
-    Notification::assertSentTo($user, AccountCreated::class);
-    Notification::assertSentTo($user, OfficialApplicationApproved::class);
+    // One welcome, not an invitation and an approval: see OfficialWelcome.
+    Notification::assertSentTo($user, OfficialWelcome::class);
+    Notification::assertCount(1);
 });
 
 it('keeps one login for somebody who already has an account', function (): void {
@@ -125,8 +125,13 @@ it('keeps one login for somebody who already has an account', function (): void 
     expect(User::where('email', 'coach@example.com')->count())->toBe(1)
         ->and($application->fresh()->user_id)->toBe($existing->getKey());
 
-    // They already know their password, so no invitation is posted.
-    Notification::assertNotSentTo($existing, AccountCreated::class);
+    // They already know their password, so the welcome sends them to the
+    // portal rather than handing them a reset link they did not ask for.
+    Notification::assertSentTo(
+        $existing,
+        OfficialWelcome::class,
+        fn (OfficialWelcome $notification): bool => $notification->accountIsNew === false,
+    );
 });
 
 it('refuses to approve an applicant whose club is not on the register', function (): void {

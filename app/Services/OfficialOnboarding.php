@@ -8,10 +8,9 @@ use App\Models\CourseEnrolment;
 use App\Models\OfficialApplication;
 use App\Models\TechnicalOfficial;
 use App\Models\User;
-use App\Notifications\AccountCreated;
-use App\Notifications\OfficialApplicationApproved;
 use App\Notifications\OfficialApplicationDeclined;
 use App\Notifications\OfficialApplicationReceived;
+use App\Notifications\OfficialWelcome;
 use App\Support\Roles;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -88,18 +87,14 @@ class OfficialOnboarding
         });
 
         /*
-         * Sent after the transaction commits, so a rolled-back approval can
-         * never post an invitation. Somebody who already had an account is
-         * not sent a password link they do not need.
+         * One welcome, sent after the transaction commits so a rolled-back
+         * approval can never post an invitation. It carries the password link
+         * itself where the account is new, which is why there is no separate
+         * invitation: the two used to arrive together and the one telling
+         * somebody to start their course was useless until the other had been
+         * opened.
          */
-        if ($accountIsNew) {
-            $user->notify(new AccountCreated(
-                $application->club->name ?? 'Zimbabwe Swimming',
-                Roles::label(Roles::GALA_OFFICIAL),
-            ));
-        }
-
-        $user->notify(new OfficialApplicationApproved($application->fresh(), $course));
+        $user->notify(new OfficialWelcome($application->fresh(), $official, $course, $accountIsNew));
 
         return $application->fresh();
     }

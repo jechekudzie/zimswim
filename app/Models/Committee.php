@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\AsRichText;
 use Carbon\CarbonImmutable;
 use Database\Factories\CommitteeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,6 +27,11 @@ class Committee extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
+
+    protected function casts(): array
+    {
+        return ['description' => AsRichText::class];
+    }
 
     /** @return BelongsTo<Organization, $this> */
     public function organization(): BelongsTo

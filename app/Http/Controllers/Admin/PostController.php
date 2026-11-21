@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Support\Content\RichText;
+use App\Support\Images;
 use App\Support\OrganizationContext;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -85,7 +85,7 @@ class PostController extends Controller
             'organization_id' => $this->context->currentId(),
         ]);
 
-        $this->storeCover($request, $post);
+        Images::replace($request, $post, 'cover_image', 'cover_image_path', 'news');
 
         return to_route('admin.news.edit', $post)
             ->with('success', $post->title.' has been saved.');
@@ -103,9 +103,7 @@ class PostController extends Controller
                 'category' => $post->category,
                 'excerpt' => $post->excerpt,
                 'body' => $post->body,
-                'cover_image_url' => $post->cover_image_path === null
-                    ? null
-                    : Storage::disk('public')->url($post->cover_image_path),
+                'cover_image_url' => Images::url($post->cover_image_path),
                 // A datetime-local field wants no timezone suffix on it.
                 'published_at' => $post->published_at?->format('Y-m-d\TH:i'),
                 'is_featured' => $post->is_featured,
@@ -121,7 +119,7 @@ class PostController extends Controller
         $this->authorize('update', $post);
 
         $post->update($this->validated($request));
-        $this->storeCover($request, $post);
+        Images::replace($request, $post, 'cover_image', 'cover_image_path', 'news');
 
         return back()->with('success', $post->title.' has been updated.');
     }
@@ -130,6 +128,7 @@ class PostController extends Controller
     {
         $this->authorize('delete', $post);
 
+        Images::forget($post, 'cover_image_path');
         $post->delete();
 
         return to_route('admin.news.index')->with('success', $post->title.' has been removed.');
@@ -164,32 +163,6 @@ class PostController extends Controller
         }
 
         return $validated;
-    }
-
-    /**
-     * Keep a newly uploaded cover, and drop the one it replaces.
-     */
-    private function storeCover(Request $request, Post $post): void
-    {
-        if (! $request->hasFile('cover_image')) {
-            return;
-        }
-
-        $previous = $post->cover_image_path;
-
-        $post->update([
-            'cover_image_path' => $request->file('cover_image')->storeAs(
-                'news',
-                Str::uuid()->toString().'.'.$request->file('cover_image')->extension(),
-                'public',
-            ),
-        ]);
-
-        // Only once the new one is safely saved, so a failed upload cannot
-        // leave an article with no picture at all.
-        if ($previous !== null) {
-            Storage::disk('public')->delete($previous);
-        }
     }
 
     /**

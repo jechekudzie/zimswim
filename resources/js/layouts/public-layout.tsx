@@ -24,6 +24,7 @@ import {
     records,
     venues,
 } from '@/routes';
+import library from '@/routes/library';
 import news from '@/routes/news';
 import results from '@/routes/results';
 import type { Auth } from '@/types';
@@ -322,6 +323,14 @@ export default function PublicLayout({
                                         className="hover:text-white"
                                     >
                                         Venue register
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link
+                                        href={library.index()}
+                                        className="hover:text-white"
+                                    >
+                                        Handbook and forms
                                     </Link>
                                 </li>
                             </ul>

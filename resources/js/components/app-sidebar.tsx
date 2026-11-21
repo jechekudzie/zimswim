@@ -4,14 +4,17 @@ import {
     CalendarDays,
     ClipboardCheck,
     ClipboardList,
+    FileText,
     Globe,
     GraduationCap,
+    Handshake,
     LayoutGrid,
     Newspaper,
     Pencil,
     ShieldCheck,
     Trophy,
     Users,
+    Users2,
     Waves,
 } from 'lucide-react';
 
@@ -131,6 +134,24 @@ export function AppSidebar() {
                     title: 'News',
                     href: admin.news.index(),
                     icon: Newspaper,
+                    permission: 'content.manage',
+                },
+                {
+                    title: 'Documents',
+                    href: admin.documents.index(),
+                    icon: FileText,
+                    permission: 'content.manage',
+                },
+                {
+                    title: 'Committees',
+                    href: admin.committees.index(),
+                    icon: Users2,
+                    permission: 'content.manage',
+                },
+                {
+                    title: 'Sponsors',
+                    href: admin.sponsors.index(),
+                    icon: Handshake,
                     permission: 'content.manage',
                 },
                 {

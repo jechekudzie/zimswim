@@ -5,6 +5,7 @@ import {
     Organogram,
     type ChainLink,
 } from '@/components/public/org-chart';
+import { Prose } from '@/components/prose';
 import { Section, SectionHeading } from '@/components/public/section';
 import PublicLayout from '@/layouts/public-layout';
 import { photos } from '@/lib/photos';
@@ -14,6 +15,7 @@ type Person = { name: string; role: string; email?: string | null };
 type Committee = {
     name: string;
     kind: string;
+    description: string | null;
     members: Person[];
 };
 
@@ -154,8 +156,18 @@ export default function About({
                                             key={committee.name}
                                             className="border-b border-border/60 bg-card last:border-0"
                                         >
-                                            <td className="px-5 py-3 font-medium">
-                                                {committee.name}
+                                            <td className="px-5 py-3">
+                                                <p className="font-medium">
+                                                    {committee.name}
+                                                </p>
+                                                {committee.description && (
+                                                    <Prose
+                                                        className="mt-1 text-xs text-muted-foreground"
+                                                        html={
+                                                            committee.description
+                                                        }
+                                                    />
+                                                )}
                                             </td>
                                             <td className="px-5 py-3 text-muted-foreground">
                                                 {committee.members

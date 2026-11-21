@@ -47,6 +47,11 @@ class Sponsor extends Model
             ->doNotGenerateSlugsOnUpdate();
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     /** @return BelongsTo<Organization, $this> */
     public function organization(): BelongsTo
     {

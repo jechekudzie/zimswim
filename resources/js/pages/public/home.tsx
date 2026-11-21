@@ -73,7 +73,12 @@ type HomeProps = {
         minimum_age: number;
         learner_sessions: number;
     };
-    sponsors: { name: string; slug: string }[];
+    sponsors: {
+        name: string;
+        slug: string;
+        website: string | null;
+        logo_url: string | null;
+    }[];
     stats: {
         provinces: number;
         clubs: number;
@@ -837,14 +842,40 @@ export default function Home({
                             {say('home.sponsors.heading')}
                         </p>
                         <div className="mt-8 flex flex-wrap items-center justify-center gap-x-16 gap-y-6">
-                            {sponsors.map((sponsor) => (
-                                <span
-                                    key={sponsor.slug}
-                                    className="text-xl font-bold tracking-tight text-muted-foreground"
-                                >
-                                    {sponsor.name}
-                                </span>
-                            ))}
+                            {sponsors.map((sponsor) => {
+                                /*
+                                 * A sponsor with a mark is shown by it; one
+                                 * without is set in type rather than left as
+                                 * a gap, so the board never has a hole in it
+                                 * while a logo is being chased.
+                                 */
+                                const mark = sponsor.logo_url ? (
+                                    <img
+                                        src={sponsor.logo_url}
+                                        alt={sponsor.name}
+                                        loading="lazy"
+                                        className="h-10 w-auto max-w-40 object-contain opacity-70 transition-opacity hover:opacity-100"
+                                    />
+                                ) : (
+                                    <span className="text-xl font-bold tracking-tight text-muted-foreground">
+                                        {sponsor.name}
+                                    </span>
+                                );
+
+                                return sponsor.website ? (
+                                    <a
+                                        key={sponsor.slug}
+                                        href={sponsor.website}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="rounded focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                                    >
+                                        {mark}
+                                    </a>
+                                ) : (
+                                    <span key={sponsor.slug}>{mark}</span>
+                                );
+                            })}
                         </div>
                     </div>
                 </section>

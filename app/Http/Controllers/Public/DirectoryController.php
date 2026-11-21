@@ -86,6 +86,7 @@ class DirectoryController extends Controller
             ->map(fn (Committee $committee): array => [
                 'name' => $committee->name,
                 'kind' => $committee->kind,
+                'description' => $committee->description,
                 'members' => $committee->members->map(fn ($member): array => [
                     'name' => $member->person_name,
                     'role' => $member->role,

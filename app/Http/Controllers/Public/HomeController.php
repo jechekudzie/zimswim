@@ -16,6 +16,7 @@ use App\Models\SwimRecord;
 use App\Models\TechnicalOfficial;
 use App\Models\Venue;
 use App\Support\Content\PageContent;
+use App\Support\Images;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -90,7 +91,16 @@ class HomeController extends Controller
                     'lanes' => $venue->lanes,
                 ]),
             'officialsEntry' => $this->officialsEntry(),
-            'sponsors' => Sponsor::query()->active()->get(['name', 'slug', 'website', 'tier']),
+            'sponsors' => Sponsor::query()
+                ->active()
+                ->get(['name', 'slug', 'website', 'tier', 'logo_path'])
+                ->map(fn (Sponsor $sponsor): array => [
+                    'name' => $sponsor->name,
+                    'slug' => $sponsor->slug,
+                    'website' => $sponsor->website,
+                    'tier' => $sponsor->tier,
+                    'logo_url' => Images::url($sponsor->logo_path),
+                ]),
             'stats' => [
                 'provinces' => Organization::query()->ofType(OrganizationType::Province)->active()->count(),
                 'clubs' => Organization::query()->ofType(OrganizationType::Club)->active()->count(),

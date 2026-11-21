@@ -4,10 +4,12 @@ use App\Http\Controllers\Academy\AcademyController;
 use App\Http\Controllers\Academy\CertificateController;
 use App\Http\Controllers\Academy\ExamController;
 use App\Http\Controllers\Admin\AccreditationController;
+use App\Http\Controllers\Admin\CommitteeController;
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\CourseContentController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\FinalsController;
 use App\Http\Controllers\Admin\GalaController;
 use App\Http\Controllers\Admin\GalaEntryController;
@@ -23,6 +25,7 @@ use App\Http\Controllers\Admin\RelayTeamController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SeedingController;
+use App\Http\Controllers\Admin\SponsorController;
 use App\Http\Controllers\Admin\SwimRecordController;
 use App\Http\Controllers\Admin\TechnicalOfficialController;
 use App\Http\Controllers\Admin\UserController;
@@ -32,6 +35,7 @@ use App\Http\Controllers\Portal\OfficialPortalController;
 use App\Http\Controllers\Public\CalendarController;
 use App\Http\Controllers\Public\DirectoryController;
 use App\Http\Controllers\Public\HomeController;
+use App\Http\Controllers\Public\LibraryController;
 use App\Http\Controllers\Public\NewsController;
 use App\Http\Controllers\Public\OfficialApplicationController as PublicOfficialApplicationController;
 use App\Http\Controllers\Public\OfficialsPathwayController;
@@ -81,6 +85,8 @@ Route::post('officials/apply', [PublicOfficialApplicationController::class, 'sto
     ->name('officials.apply.store');
 Route::get('officials/applied', [PublicOfficialApplicationController::class, 'applied'])->name('officials.applied');
 Route::get('news', [NewsController::class, 'index'])->name('news.index');
+Route::get('library', [LibraryController::class, 'index'])->name('library.index');
+Route::get('library/{document}', [LibraryController::class, 'download'])->name('library.download');
 Route::get('news/{post}', [NewsController::class, 'show'])->name('news.show');
 
 /*
@@ -167,6 +173,30 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::resource('news', PostController::class)
             ->parameters(['news' => 'post'])
             ->except(['show']);
+
+        Route::resource('sponsors', SponsorController::class)->except(['show']);
+
+        /*
+         * Committees belong to the body that elected them, so this page shows
+         * the one being acted in rather than the whole federation.
+         */
+        Route::get('committees', [CommitteeController::class, 'index'])->name('committees.index');
+        Route::post('committees', [CommitteeController::class, 'store'])->name('committees.store');
+        Route::put('committees/{committee}', [CommitteeController::class, 'update'])->name('committees.update');
+        Route::delete('committees/{committee}', [CommitteeController::class, 'destroy'])->name('committees.destroy');
+        Route::post('committees/{committee}/members', [CommitteeController::class, 'storeMember'])->name('committees.members.store');
+        Route::put('committees/{committee}/members/{member}', [CommitteeController::class, 'updateMember'])->name('committees.members.update');
+        Route::delete('committees/{committee}/members/{member}', [CommitteeController::class, 'destroyMember'])->name('committees.members.destroy');
+
+        /*
+         * The handbook, the rules and the forms. Results files live in the
+         * same table but belong to a gala, and are managed from its screen.
+         */
+        Route::get('documents', [DocumentController::class, 'index'])->name('documents.index');
+        Route::post('documents', [DocumentController::class, 'store'])->name('documents.store');
+        Route::put('documents/{document}', [DocumentController::class, 'update'])->name('documents.update');
+        Route::get('documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
+        Route::delete('documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
 
         Route::get('official-applications', [OfficialApplicationController::class, 'index'])->name('official-applications.index');
         Route::post('official-applications/{application}/approve', [OfficialApplicationController::class, 'approve'])->name('official-applications.approve');

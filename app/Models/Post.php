@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\AsRichText;
 use Carbon\CarbonImmutable;
 use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -38,6 +39,9 @@ class Post extends Model
     protected function casts(): array
     {
         return [
+            // The excerpt stays plain: it is the one line under a headline in
+            // a list of cards, with nowhere for a paragraph to go.
+            'body' => AsRichText::class,
             'published_at' => 'datetime',
             'is_featured' => 'boolean',
         ];

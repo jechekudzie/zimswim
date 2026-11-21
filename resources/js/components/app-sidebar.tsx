@@ -128,6 +128,12 @@ export function AppSidebar() {
             label: 'Website',
             items: [
                 {
+                    title: 'News',
+                    href: admin.news.index(),
+                    icon: Newspaper,
+                    permission: 'content.manage',
+                },
+                {
                     title: 'Website text',
                     href: admin.content.index(),
                     icon: Pencil,

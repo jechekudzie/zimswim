@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\OfficialApplicationController;
 use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\Admin\OrganizationSwitchController;
+use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\RelayTeamController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Admin\RoleController;
@@ -157,6 +158,15 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::put('content', [ContentController::class, 'update'])->name('content.update');
         Route::post('content/image', [ContentController::class, 'image'])->name('content.image');
         Route::delete('content/image', [ContentController::class, 'resetImage'])->name('content.image.reset');
+
+        /*
+         * The news page. An article is published by its date rather than by
+         * a flag, so one can be written now and appear on the morning of a
+         * gala without anybody having to remember.
+         */
+        Route::resource('news', PostController::class)
+            ->parameters(['news' => 'post'])
+            ->except(['show']);
 
         Route::get('official-applications', [OfficialApplicationController::class, 'index'])->name('official-applications.index');
         Route::post('official-applications/{application}/approve', [OfficialApplicationController::class, 'approve'])->name('official-applications.approve');

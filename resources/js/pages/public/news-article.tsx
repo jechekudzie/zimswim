@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 
+import { Prose } from '@/components/prose';
 import { Button } from '@/components/ui/button';
 import { PageHero } from '@/components/public/page-hero';
 import PublicLayout from '@/layouts/public-layout';
@@ -65,11 +66,7 @@ export default function NewsArticle({
 
             {/* The standfirst is in the header, so the article opens on the body. */}
             <article className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-                <div className="space-y-5 leading-relaxed">
-                    {post.body.split('\n\n').map((paragraph) => (
-                        <p key={paragraph.slice(0, 40)}>{paragraph}</p>
-                    ))}
-                </div>
+                <Prose className="leading-relaxed" html={post.body} />
             </article>
 
             {related.length > 0 && (

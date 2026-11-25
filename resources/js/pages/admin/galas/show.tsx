@@ -105,6 +105,11 @@ export default function GalaShow({
                     actions={
                         <div className="flex flex-wrap gap-2">
                             <Button asChild variant="outline">
+                                <Link href={admin.galas.programme(gala.slug)}>
+                                    Programme
+                                </Link>
+                            </Button>
+                            <Button asChild variant="outline">
                                 <Link
                                     href={admin.galas.entries.index(gala.slug)}
                                 >

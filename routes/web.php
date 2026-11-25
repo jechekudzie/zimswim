@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\FinalsController;
 use App\Http\Controllers\Admin\GalaController;
 use App\Http\Controllers\Admin\GalaEntryController;
+use App\Http\Controllers\Admin\GalaProgrammeController;
 use App\Http\Controllers\Admin\GalaResultsFileController;
 use App\Http\Controllers\Admin\GalaSanctionController;
 use App\Http\Controllers\Admin\MeetFileController;
@@ -244,6 +245,18 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
             ->parameters(['training' => 'training']);
 
         Route::post('galas/{gala}/sanction', [GalaSanctionController::class, 'store'])->name('galas.sanction');
+
+        /*
+         * The programme: sessions and the events in each. The public gala
+         * page could always show one; until now there was no way to type it.
+         */
+        Route::get('galas/{gala}/programme', [GalaProgrammeController::class, 'index'])->name('galas.programme');
+        Route::post('galas/{gala}/sessions', [GalaProgrammeController::class, 'storeSession'])->name('galas.sessions.store');
+        Route::patch('galas/{gala}/sessions/{session}', [GalaProgrammeController::class, 'updateSession'])->name('galas.sessions.update');
+        Route::delete('galas/{gala}/sessions/{session}', [GalaProgrammeController::class, 'destroySession'])->name('galas.sessions.destroy');
+        Route::post('galas/{gala}/events', [GalaProgrammeController::class, 'storeEvent'])->name('galas.events.store');
+        Route::patch('galas/{gala}/events/{event}', [GalaProgrammeController::class, 'updateEvent'])->name('galas.events.update');
+        Route::delete('galas/{gala}/events/{event}', [GalaProgrammeController::class, 'destroyEvent'])->name('galas.events.destroy');
 
         Route::get('galas/{gala}/entries', [GalaEntryController::class, 'index'])->name('galas.entries.index');
         Route::post('galas/{gala}/entries', [GalaEntryController::class, 'store'])->name('galas.entries.store');

@@ -118,7 +118,7 @@ class VenueSeeder extends Seeder
                 'notes' => 'Hosts the Zimbabwe Swimming Senior Nationals and regional championships.',
             ],
             [
-                'name' => 'Mutare Municipal City Pool',
+                'name' => 'Mutare City Pool',
                 'slug' => 'mutare-municipal-city-pool',
                 'province' => 'manicaland',
                 'city' => 'Mutare',

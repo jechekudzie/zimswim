@@ -55,7 +55,7 @@ const chain: ChainLink[] = [
     {
         scope: 'Province',
         name: 'Provinces',
-        note: 'Eleven provincial bodies. A club affiliates here, not directly to the national body.',
+        note: 'Ten provincial bodies. A club affiliates here, not directly to the national body.',
     },
     {
         scope: 'Club',

@@ -22,6 +22,8 @@ class CalendarSeeder extends Seeder
         $season = Season::where('slug', '2026-2027')->firstOrFail();
         $national = Organization::where('slug', 'zimbabwe-swimming')->firstOrFail();
 
+        $this->rename();
+
         foreach ($this->galas() as $gala) {
             $host = Organization::where('slug', $gala['host'])->first();
 
@@ -64,6 +66,31 @@ class CalendarSeeder extends Seeder
     }
 
     /**
+     * Carry a gala across when the federation changes what it is called.
+     *
+     * The slug is the gala's address — entries, results and anything already
+     * linked to hang off it — so a renamed meet has to keep its row rather
+     * than be seeded again beside the old one under a new slug.
+     */
+    private function rename(): void
+    {
+        /** @var array<string, string> $renamed Old slug => the slug it is known by now. */
+        $renamed = [
+            // Was 'Zimbabwe Swimming National Development' until the
+            // federation confirmed the correct name in November 2026.
+            'national-development-2027' => 'junior-level-1-nationals-2027',
+        ];
+
+        foreach ($renamed as $was => $now) {
+            if (Gala::where('slug', $now)->exists()) {
+                continue;
+            }
+
+            Gala::where('slug', $was)->update(['slug' => $now]);
+        }
+    }
+
+    /**
      * @return array<int, array<string, mixed>>
      */
     private function galas(): array
@@ -95,7 +122,7 @@ class CalendarSeeder extends Seeder
                 'no_show_fine' => 50.00,
                 'appeal_deposit' => 50.00,
                 'eligible_ages' => '8 years and above',
-                'entries_email' => 'hasentries@gmail.com',
+                'entries_email' => 'zimswimnationalsentries@gmail.com',
                 'description' => 'Swum under World Aquatics rules as separate gender, timed finals. Age groups are 9-10, 11/12, 13/14 and 15 & Over for 50m events, and 12/U, 13/14 and 15 & Over for 100m events. No qualifying times apply.',
             ],
             [
@@ -171,8 +198,8 @@ class CalendarSeeder extends Seeder
                 'late_entry_event_fee' => 5.00,
                 'no_show_fine' => 10.00,
                 'appeal_deposit' => 50.00,
-                'eligible_ages' => '8 to 12 years',
-                'entries_email' => 'hasentries@gmail.com',
+                'eligible_ages' => '10 to 16 years',
+                'entries_email' => 'zimswimnationalsentries@gmail.com',
                 'qualifying_times_apply' => true,
                 'description' => 'Heats and finals on a separate gender basis. Swimmers aged 10 to 12 need a qualifying time; no qualifying times for 13 years and over. A swimmer must hold a 200m IM and a 200m freestyle time on the national database from 1 May 2026. All times are converted to long course.',
             ],
@@ -191,14 +218,14 @@ class CalendarSeeder extends Seeder
                 'qualifying_times_apply' => true,
             ],
             [
-                'name' => 'Zimbabwe Swimming National Development',
-                'slug' => 'national-development-2027',
+                'name' => 'Zimbabwe Junior Level 1 Nationals',
+                'slug' => 'junior-level-1-nationals-2027',
                 'host' => 'zimbabwe-swimming',
                 'level' => GalaLevel::National,
                 'starts_on' => '2027-03-12',
                 'ends_on' => '2027-03-14',
                 'entry_fee' => 20.00,
-                'eligible_ages' => '8 years and above',
+                'eligible_ages' => '8 to 12 years',
             ],
         ];
     }

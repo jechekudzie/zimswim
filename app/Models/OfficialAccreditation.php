@@ -7,6 +7,7 @@ use App\Enums\OfficialCategory;
 use App\Enums\OfficialGrade;
 use Carbon\CarbonImmutable;
 use Database\Factories\OfficialAccreditationFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -64,6 +65,26 @@ class OfficialAccreditation extends Model
     public function hasLapsed(): bool
     {
         return $this->expires_on !== null && $this->expires_on->isPast();
+    }
+
+    /**
+     * What counts as being on the public officials register: ratified by the
+     * technical committee, still active, and not past its expiry.
+     *
+     * A learner is excluded. They are working towards the qualification, and
+     * listing them beside the people who hold it misrepresents both.
+     *
+     * @param  Builder<self>  $query
+     */
+    public function scopeOnTheRegister(Builder $query): void
+    {
+        $query
+            ->where('status', AccreditationStatus::Active)
+            ->where('grade', '!=', OfficialGrade::Learner)
+            ->whereNotNull('ratified_at')
+            ->where(fn (Builder $inner) => $inner
+                ->whereNull('expires_on')
+                ->orWhere('expires_on', '>=', now()->toDateString()));
     }
 
     /**

@@ -26,6 +26,7 @@ import {
     venues,
 } from '@/routes';
 import library from '@/routes/library';
+import officialRoutes from '@/routes/officials';
 import news from '@/routes/news';
 import results from '@/routes/results';
 import type { Auth } from '@/types';
@@ -364,6 +365,14 @@ export default function PublicLayout({
                                         className="hover:text-white"
                                     >
                                         Become an official
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link
+                                        href={officialRoutes.register()}
+                                        className="hover:text-white"
+                                    >
+                                        Officials register
                                     </Link>
                                 </li>
                                 <li>

@@ -40,6 +40,7 @@ use App\Http\Controllers\Public\LibraryController;
 use App\Http\Controllers\Public\NewsController;
 use App\Http\Controllers\Public\OfficialApplicationController as PublicOfficialApplicationController;
 use App\Http\Controllers\Public\OfficialsPathwayController;
+use App\Http\Controllers\Public\OfficialsRegisterController;
 use App\Http\Controllers\Public\RecordController;
 use App\Http\Controllers\Public\ResultsController;
 use App\Http\Controllers\Public\ResultsFileController;
@@ -84,6 +85,8 @@ Route::get('certificates/{certificate}/pdf', [CertificateController::class, 'pdf
     ->middleware('auth')
     ->name('certificates.pdf');
 Route::get('officials', OfficialsPathwayController::class)->name('officials');
+// The roll of people who have finished the pathway the page above describes.
+Route::get('officials/register', OfficialsRegisterController::class)->name('officials.register');
 
 /*
  * Applying to officiate. Open to anybody: an applicant has no account until

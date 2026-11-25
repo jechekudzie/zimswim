@@ -369,6 +369,14 @@ export default function PublicLayout({
                                 </li>
                                 <li>
                                     <Link
+                                        href={officialRoutes.training()}
+                                        className="hover:text-white"
+                                    >
+                                        Clinics and exams
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link
                                         href={officialRoutes.register()}
                                         className="hover:text-white"
                                     >

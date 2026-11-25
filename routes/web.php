@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\GalaSanctionController;
 use App\Http\Controllers\Admin\MeetFileController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\OfficialApplicationController;
+use App\Http\Controllers\Admin\OfficialTrainingController as AdminOfficialTrainingController;
 use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\Admin\OrganizationSwitchController;
 use App\Http\Controllers\Admin\PostController;
@@ -41,6 +42,7 @@ use App\Http\Controllers\Public\NewsController;
 use App\Http\Controllers\Public\OfficialApplicationController as PublicOfficialApplicationController;
 use App\Http\Controllers\Public\OfficialsPathwayController;
 use App\Http\Controllers\Public\OfficialsRegisterController;
+use App\Http\Controllers\Public\OfficialTrainingController;
 use App\Http\Controllers\Public\RecordController;
 use App\Http\Controllers\Public\ResultsController;
 use App\Http\Controllers\Public\ResultsFileController;
@@ -87,6 +89,17 @@ Route::get('certificates/{certificate}/pdf', [CertificateController::class, 'pdf
 Route::get('officials', OfficialsPathwayController::class)->name('officials');
 // The roll of people who have finished the pathway the page above describes.
 Route::get('officials/register', OfficialsRegisterController::class)->name('officials.register');
+
+/*
+ * Clinics and exam sittings. Open to anybody, with or without an account:
+ * the people a clinic most needs to reach are not on the register yet.
+ */
+Route::get('officials/training', [OfficialTrainingController::class, 'index'])->name('officials.training');
+Route::get('officials/training/{training}', [OfficialTrainingController::class, 'show'])
+    ->name('officials.training.show');
+Route::post('officials/training/{training}', [OfficialTrainingController::class, 'register'])
+    ->middleware('throttle:6,1')
+    ->name('officials.training.register');
 
 /*
  * Applying to officiate. Open to anybody: an applicant has no account until
@@ -223,6 +236,12 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::resource('officials', TechnicalOfficialController::class)
             ->except(['destroy'])
             ->parameters(['officials' => 'official']);
+
+        // Clinics, exam sittings and refreshers on the officials' calendar.
+        Route::get('training/{training}/export', [AdminOfficialTrainingController::class, 'export'])
+            ->name('training.export');
+        Route::resource('training', AdminOfficialTrainingController::class)
+            ->parameters(['training' => 'training']);
 
         Route::post('galas/{gala}/sanction', [GalaSanctionController::class, 'store'])->name('galas.sanction');
 

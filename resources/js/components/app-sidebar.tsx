@@ -72,6 +72,12 @@ export function AppSidebar() {
                     permission: 'officials.view',
                 },
                 {
+                    title: 'Clinics and exams',
+                    href: admin.training.index(),
+                    icon: GraduationCap,
+                    permission: 'officials.view',
+                },
+                {
                     title: 'Organisations',
                     href: admin.organizations.index(),
                     icon: Globe,

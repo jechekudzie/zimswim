@@ -18,6 +18,7 @@ import {
     calendar,
     clubs,
     dashboard,
+    fees,
     home,
     login,
     officials,
@@ -323,6 +324,14 @@ export default function PublicLayout({
                                         className="hover:text-white"
                                     >
                                         Venue register
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link
+                                        href={fees()}
+                                        className="hover:text-white"
+                                    >
+                                        Fees at a glance
                                     </Link>
                                 </li>
                                 <li>

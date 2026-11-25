@@ -36,7 +36,7 @@ class SeasonSeeder extends Seeder
             ['code' => 'national-sprint-entry', 'name' => 'National Sprint Entry', 'amount' => 20.00, 'unit' => 'per swimmer'],
             ['code' => 'junior-nationals-entry', 'name' => 'Junior Nationals Entry', 'amount' => 20.00, 'unit' => 'per swimmer'],
             ['code' => 'senior-nationals-entry', 'name' => 'Senior Nationals Entry', 'amount' => 20.00, 'unit' => 'per swimmer'],
-            ['code' => 'development-entry', 'name' => 'Development Entry', 'amount' => 20.00, 'unit' => 'per swimmer'],
+            ['code' => 'development-entry', 'name' => 'Junior Level 1 Nationals Entry', 'amount' => 20.00, 'unit' => 'per swimmer'],
         ];
 
         foreach ($fees as $position => $fee) {

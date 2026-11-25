@@ -105,9 +105,27 @@ class HomeController extends Controller
                 'provinces' => Organization::query()->ofType(OrganizationType::Province)->active()->count(),
                 'clubs' => Organization::query()->ofType(OrganizationType::Club)->active()->count(),
                 'swimmers' => Member::query()->active()->count(),
+                // Everybody on the officials register, learners included:
+                // they are technical officials, they are just not
+                // accredited yet.
                 'officials' => TechnicalOfficial::query()->where('status', 'active')->count(),
+                /*
+                 * The ones who actually hold something. Counted the same way
+                 * the public register is built, so the figure on the home
+                 * page and the names on that page cannot disagree.
+                 */
+                'accredited' => TechnicalOfficial::query()
+                    ->where('status', 'active')
+                    ->whereHas('accreditations', fn ($query) => $query->onTheRegister())
+                    ->count(),
                 'records' => SwimRecord::query()->ratified()->count(),
-                'galas' => Gala::query()->published()->upcoming()->count(),
+                // The whole season's calendar, which is what the tile claims.
+                // It used to count only what was still to come, so the
+                // number shrank as the season was swum.
+                'galas' => Gala::query()
+                    ->published()
+                    ->when($season, fn ($query) => $query->where('season_id', $season->getKey()))
+                    ->count(),
             ],
         ]);
     }

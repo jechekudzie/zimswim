@@ -153,7 +153,15 @@ class CalendarSeeder extends Seeder
                 'venue' => 'les-brown-pool',
                 'level' => GalaLevel::Provincial,
                 'starts_on' => '2026-11-20',
-                'ends_on' => '2026-11-22',
+                /*
+                 * The second weekend, not the first. The championship runs
+                 * 20 to 22 and 27 to 29 November, and ending it on the 22nd
+                 * dropped it off the calendar between the two — which is why
+                 * the federation reported the second weekend as missing. The
+                 * description below carries the gap; the programme carries
+                 * the days actually swum.
+                 */
+                'ends_on' => '2026-11-29',
                 'eligible_ages' => '11 years and above',
                 'description' => 'Run over two weekends: 20 to 22 November and 27 to 29 November 2026.',
             ],

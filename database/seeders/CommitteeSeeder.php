@@ -213,6 +213,8 @@ class CommitteeSeeder extends Seeder
                 ['Tara Morgan', 'Chairperson'],
                 ['Maica MacMillian', 'Vice Chairperson'],
                 ['Leanne Morland', 'Treasurer'],
+                // The handbook has her holding both offices on this board.
+                ['Tara Morgan', 'Secretary'],
             ],
             'mashonaland-west' => [
                 ['Michael Roper', 'Chairperson'],

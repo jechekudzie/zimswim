@@ -84,6 +84,7 @@ type HomeProps = {
         clubs: number;
         swimmers: number;
         officials: number;
+        accredited: number;
         records: number;
         galas: number;
     };
@@ -648,7 +649,7 @@ export default function Home({
                             },
                             {
                                 label: 'Qualified officials',
-                                value: stats.officials,
+                                value: stats.accredited,
                                 icon: ClipboardCheck,
                             },
                         ].map((tile, index) => (

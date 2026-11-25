@@ -6,6 +6,7 @@ use App\Enums\AffiliationStatus;
 use App\Enums\OrganizationType;
 use App\Http\Controllers\Controller;
 use App\Models\Organization;
+use App\Models\Venue;
 use App\Support\Csv;
 use App\Support\OrganizationContext;
 use Illuminate\Database\Eloquent\Builder;
@@ -252,6 +253,7 @@ class OrganizationController extends Controller
             'organization' => null,
             'parents' => $this->parents(),
             'types' => OrganizationType::options(),
+            'venues' => $this->venues(),
         ]);
     }
 
@@ -284,11 +286,14 @@ class OrganizationController extends Controller
                 'website' => $organization->website,
                 'address' => $organization->address,
                 'city' => $organization->city,
+                'home_venue_id' => $organization->home_venue_id,
+                'training_times' => $organization->training_times,
                 'affiliation_status' => $organization->affiliation_status->value,
                 'is_active' => $organization->is_active,
             ],
             'parents' => $this->parents($organization),
             'types' => OrganizationType::options(),
+            'venues' => $this->venues(),
         ]);
     }
 
@@ -330,9 +335,29 @@ class OrganizationController extends Controller
             'website' => ['nullable', 'url', 'max:255'],
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
+            'home_venue_id' => ['nullable', 'integer', 'exists:venues,id'],
+            'training_times' => ['nullable', 'string', 'max:2000'],
             'affiliation_status' => ['required', Rule::enum(AffiliationStatus::class)],
             'is_active' => ['boolean'],
         ]);
+    }
+
+    /**
+     * The pools a club can be marked as training at.
+     *
+     * @return array<int, array{value: int, label: string}>
+     */
+    private function venues(): array
+    {
+        return Venue::query()
+            ->active()
+            ->orderBy('name')
+            ->get(['id', 'name', 'city'])
+            ->map(fn (Venue $venue): array => [
+                'value' => $venue->getKey(),
+                'label' => $venue->city === null ? $venue->name : $venue->name.' — '.$venue->city,
+            ])
+            ->all();
     }
 
     /**

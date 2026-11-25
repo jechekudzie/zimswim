@@ -28,6 +28,8 @@ type OrganizationFormData = {
     website: string | null;
     address: string | null;
     city: string | null;
+    home_venue_id: number | null;
+    training_times: string | null;
     affiliation_status: string;
     is_active: boolean;
 };
@@ -36,10 +38,12 @@ export default function OrganizationForm({
     organization,
     parents,
     types,
+    venues,
 }: {
     organization: OrganizationFormData | null;
     parents: Option<number>[];
     types: Option[];
+    venues: Option<number>[];
 }) {
     useFlashMessages();
     const editing = organization !== null;
@@ -211,6 +215,43 @@ export default function OrganizationForm({
                                             error={errors.address}
                                         />
                                     </div>
+                                </div>
+                            </section>
+
+                            {/*
+                             * Shown for every organisation rather than clubs
+                             * only: a province that runs its own squad has
+                             * the same question asked of it, and hiding the
+                             * fields behind the type would mean re-picking
+                             * the type to reveal them.
+                             */}
+                            <section className="rounded-xl border border-border bg-card p-6">
+                                <h2 className="font-semibold">Training</h2>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    Shown on the club&rsquo;s public page, where
+                                    a parent looking for somewhere to swim will
+                                    read it.
+                                </p>
+
+                                <div className="mt-5 space-y-5">
+                                    <SelectField
+                                        label="Trains at"
+                                        name="home_venue_id"
+                                        options={venues}
+                                        placeholder="No pool recorded"
+                                        defaultValue={
+                                            organization?.home_venue_id
+                                        }
+                                        error={errors.home_venue_id}
+                                    />
+                                    <RichTextField
+                                        label="Training times"
+                                        name="training_times"
+                                        defaultValue={
+                                            organization?.training_times
+                                        }
+                                        error={errors.training_times}
+                                    />
                                 </div>
                             </section>
 

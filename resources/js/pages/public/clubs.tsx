@@ -1,5 +1,5 @@
-import { Head } from '@inertiajs/react';
-import { MapPin } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowRight, MapPin } from 'lucide-react';
 
 import { Prose } from '@/components/prose';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,7 @@ import { ProcessBand } from '@/components/public/process-band';
 import { Section } from '@/components/public/section';
 import PublicLayout from '@/layouts/public-layout';
 import { photos } from '@/lib/photos';
+import provinceRoutes from '@/routes/provinces';
 
 type Province = {
     name: string;
@@ -44,12 +45,13 @@ export default function Clubs({ provinces }: { provinces: Province[] }) {
             <Section>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {provinces.map((province) => (
-                        <article
+                        <Link
                             key={province.slug}
-                            className="flex flex-col rounded-xl border border-border bg-card p-6"
+                            href={provinceRoutes.show(province.slug).url}
+                            className="group flex flex-col rounded-xl border border-border bg-card p-6 transition-colors hover:border-primary/40 hover:bg-brand-surface/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                         >
                             <div className="flex items-start justify-between gap-3">
-                                <h2 className="font-semibold text-balance">
+                                <h2 className="font-semibold text-balance group-hover:text-primary">
                                     {province.name}
                                 </h2>
                                 {province.code && (
@@ -105,7 +107,12 @@ export default function Clubs({ provinces }: { provinces: Province[] }) {
                                     </ul>
                                 )}
                             </div>
-                        </article>
+
+                            <p className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-primary">
+                                Open the province
+                                <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                            </p>
+                        </Link>
                     ))}
                 </div>
             </Section>

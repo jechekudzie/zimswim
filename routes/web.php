@@ -51,6 +51,14 @@ Route::get('/', HomeController::class)->name('home');
 Route::get('calendar', [CalendarController::class, 'index'])->name('calendar');
 Route::get('calendar/{gala}', [CalendarController::class, 'show'])->name('galas.show');
 Route::get('clubs', [DirectoryController::class, 'clubs'])->name('clubs');
+/*
+ * A province and then a club beneath it, rather than one flat list. The
+ * federation asked to be able to click a province, see the clubs affiliated
+ * to it, and click through to a club's coach, pool and contacts — which is
+ * also how a parent looks for somewhere to swim.
+ */
+Route::get('clubs/{province}', [DirectoryController::class, 'province'])->name('provinces.show');
+Route::get('clubs/{province}/{club}', [DirectoryController::class, 'club'])->name('clubs.show');
 Route::get('venues', [DirectoryController::class, 'venues'])->name('venues');
 Route::get('about', [DirectoryController::class, 'about'])->name('about');
 Route::get('records', RecordController::class)->name('records');

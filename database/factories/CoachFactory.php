@@ -24,4 +24,12 @@ class CoachFactory extends Factory
             'status' => 'active',
         ];
     }
+
+    /**
+     * The coach a club puts forward as the person to speak to.
+     */
+    public function head(): static
+    {
+        return $this->state(fn (): array => ['is_head_coach' => true]);
+    }
 }

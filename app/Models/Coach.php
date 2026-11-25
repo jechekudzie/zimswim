@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $email
  * @property string|null $phone
  * @property string|null $qualification
+ * @property bool $is_head_coach
  * @property string $status
  * @property CarbonImmutable|null $police_clearance_on
  * @property CarbonImmutable|null $safeguarding_checked_on
@@ -36,6 +37,7 @@ class Coach extends Model
     protected function casts(): array
     {
         return [
+            'is_head_coach' => 'boolean',
             'police_clearance_on' => 'date',
             'safeguarding_checked_on' => 'date',
         ];

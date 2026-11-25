@@ -39,6 +39,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $city
  * @property string|null $latitude
  * @property string|null $longitude
+ * @property int|null $home_venue_id
+ * @property string|null $training_times
  * @property AffiliationStatus $affiliation_status
  * @property CarbonImmutable|null $affiliated_on
  * @property CarbonImmutable|null $affiliation_expires_on
@@ -69,6 +71,7 @@ class Organization extends Model
             'settings' => 'array',
             'latitude' => 'decimal:7',
             'longitude' => 'decimal:7',
+            'training_times' => AsRichText::class,
         ];
     }
 
@@ -83,6 +86,16 @@ class Organization extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    /**
+     * The pool this club trains at.
+     *
+     * @return BelongsTo<Venue, $this>
+     */
+    public function homeVenue(): BelongsTo
+    {
+        return $this->belongsTo(Venue::class, 'home_venue_id');
     }
 
     /** @return BelongsTo<self, $this> */

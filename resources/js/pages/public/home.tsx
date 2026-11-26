@@ -97,6 +97,19 @@ function shortDate(value: string) {
     });
 }
 
+/**
+ * A deadline, written the way the dates beside it are written. The raw
+ * value is an ISO date and printing it unchanged put 2027-01-11 next to
+ * "29 Jan – 31 Jan 2027".
+ */
+function deadline(value: string) {
+    return new Date(value).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+    });
+}
+
 function dateRange(starts: string, ends: string) {
     return starts === ends
         ? `${shortDate(starts)} ${new Date(ends).getFullYear()}`
@@ -117,6 +130,13 @@ export default function Home({
 }: HomeProps) {
     const say = (key: string) => content[key] ?? '';
 
+    /*
+     * A figure the federation has not filled in yet is left out rather than
+     * published as a zero. On the day the site goes up no swimmer has been
+     * registered through it and no record ratified on it, and a hero band
+     * announcing nought swimmers says something about the federation that
+     * is not true.
+     */
     const figures = [
         { label: 'Provinces', value: stats.provinces, icon: MapPin },
         { label: 'Affiliated clubs', value: stats.clubs, icon: Users },
@@ -126,7 +146,7 @@ export default function Home({
             value: stats.officials,
             icon: ClipboardCheck,
         },
-    ];
+    ].filter((figure) => figure.value > 0);
 
     const pathways = [
         {
@@ -385,8 +405,11 @@ export default function Home({
                                         Entries close
                                     </dt>
                                     <dd className="mt-0.5 font-semibold">
-                                        {featured.entries_close_at ??
-                                            'To be advised'}
+                                        {featured.entries_close_at
+                                            ? deadline(
+                                                  featured.entries_close_at,
+                                              )
+                                            : 'To be advised'}
                                     </dd>
                                 </div>
                             </dl>
@@ -652,21 +675,23 @@ export default function Home({
                                 value: stats.accredited,
                                 icon: ClipboardCheck,
                             },
-                        ].map((tile, index) => (
-                            <Reveal
-                                key={tile.label}
-                                delay={index * 90}
-                                className="rounded-xl border border-white/15 bg-white/5 p-6 backdrop-blur"
-                            >
-                                <tile.icon className="size-5 text-brand-gold" />
-                                <p className="mt-4 text-3xl font-bold text-white">
-                                    <CountUp value={tile.value} />
-                                </p>
-                                <p className="mt-1 text-sm text-white/70">
-                                    {tile.label}
-                                </p>
-                            </Reveal>
-                        ))}
+                        ]
+                            .filter((tile) => tile.value > 0)
+                            .map((tile, index) => (
+                                <Reveal
+                                    key={tile.label}
+                                    delay={index * 90}
+                                    className="rounded-xl border border-white/15 bg-white/5 p-6 backdrop-blur"
+                                >
+                                    <tile.icon className="size-5 text-brand-gold" />
+                                    <p className="mt-4 text-3xl font-bold text-white">
+                                        <CountUp value={tile.value} />
+                                    </p>
+                                    <p className="mt-1 text-sm text-white/70">
+                                        {tile.label}
+                                    </p>
+                                </Reveal>
+                            ))}
                     </div>
                 </div>
             </section>

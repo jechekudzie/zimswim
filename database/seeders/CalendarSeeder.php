@@ -220,12 +220,23 @@ class CalendarSeeder extends Seeder
                 'venue' => 'bulawayo-city-pool',
                 'level' => GalaLevel::National,
                 'starts_on' => '2027-02-18',
+                /*
+                 * The handbook's rules page and its calendar both end this
+                 * on the 22nd. Its programme page runs a session on the
+                 * 23rd, which is an error on that page and not a sixth day.
+                 */
                 'ends_on' => '2027-02-22',
                 'age_up_date' => '2027-12-31',
+                'entries_close_at' => '2027-02-08 23:59:00',
                 'entry_fee' => 20.00,
+                'late_entry_fee' => 30.00,
+                // Two dollars an event here, against five at the juniors.
+                'late_entry_event_fee' => 2.00,
+                'no_show_fine' => 10.00,
                 'appeal_deposit' => 50.00,
                 'eligible_ages' => '13 years and above',
                 'qualifying_times_apply' => true,
+                'description' => 'Swum as prelims and finals, except the 400m freestyle, 800m freestyle, 1500m freestyle, 200m butterfly and 400m IM, which are timed finals. Age is taken at 31 December 2027. Swimmers aged 13 and over need a qualifying time, and so do 11 and 12 year olds. The fastest eight per age group are drawn in the final with two reserves.',
             ],
             [
                 'name' => 'National Junior Level 1 Championships',

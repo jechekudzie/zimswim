@@ -49,7 +49,32 @@ it('builds a programme and shows it on the public gala page', function (): void 
             ->etc());
 });
 
-it('refuses two events with the same number at one gala', function (): void {
+it('lets a heat and its final share an event number', function (): void {
+    $session = GalaSession::factory()->create(['gala_id' => $this->gala->getKey()]);
+
+    $payload = [
+        'gala_session_id' => $session->getKey(),
+        'event_number' => 201,
+        'gender' => 'girls',
+        'age_group' => '12',
+        'stroke' => Stroke::Freestyle->value,
+        'distance' => 50,
+    ];
+
+    // Event 201 is swum twice: a heat in the morning and a final in the
+    // afternoon. That is how every championship programme is numbered.
+    $this->actingAs($this->editor)
+        ->post(route('admin.galas.events.store', $this->gala), [...$payload, 'round' => 'heat'])
+        ->assertRedirect();
+
+    $this->actingAs($this->editor)
+        ->post(route('admin.galas.events.store', $this->gala), [...$payload, 'round' => 'final'])
+        ->assertSessionHasNoErrors();
+
+    expect(GalaEvent::where('event_number', 201)->count())->toBe(2);
+});
+
+it('refuses two events with the same number in the same round', function (): void {
     $session = GalaSession::factory()->create(['gala_id' => $this->gala->getKey()]);
 
     $payload = [

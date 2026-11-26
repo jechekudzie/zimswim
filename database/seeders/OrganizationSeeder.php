@@ -19,6 +19,8 @@ class OrganizationSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->rename();
+
         $national = Organization::updateOrCreate(
             ['slug' => 'zimbabwe-swimming'],
             [
@@ -79,6 +81,40 @@ class OrganizationSeeder extends Seeder
     }
 
     /**
+     * Move a body that is now known by a different slug.
+     *
+     * The federation confirmed in November 2026 that the handbook carries
+     * the registered names, which are not the names the clubs are spoken of
+     * by — Sharks rather than Sharks Swimming Club, Stingrays Swimming
+     * Academy rather than Club. The slug follows the name, and this seeder
+     * finds a body by its slug, so without this a rename would create a
+     * second club and retire the first, taking its swimmers' registrations
+     * off the register with it.
+     */
+    private function rename(): void
+    {
+        /** @var array<string, string> $renamed Old slug => the slug it is known by now. */
+        $renamed = [
+            'otters-swimming-club' => 'harare-otters-swim-club',
+            'highlands-swimming-club' => 'highlands',
+            'pirates-swimming-club' => 'pirates-zimbabwe',
+            'sharks-swimming-club' => 'sharks',
+            'spartans-swimming-club' => 'spartans',
+            'stingrays-swimming-club' => 'stingrays-swimming-academy',
+            'penguins-swimming-club' => 'penguins-club',
+            'border-dolphins' => 'border-dolphins-zimbabwe',
+        ];
+
+        foreach ($renamed as $was => $now) {
+            if (Organization::where('slug', $now)->exists()) {
+                continue;
+            }
+
+            Organization::where('slug', $was)->update(['slug' => $now]);
+        }
+    }
+
+    /**
      * Take out bodies that are no longer in the handbook.
      *
      * Anything carrying swimmers is left alone and reported instead: removing
@@ -124,13 +160,13 @@ class OrganizationSeeder extends Seeder
                 'code' => 'HAS',
                 'city' => 'Harare',
                 'clubs' => [
-                    ['name' => 'Spartans Swimming Club', 'slug' => 'spartans-swimming-club', 'code' => 'HAS-SPA'],
+                    ['name' => 'Spartans', 'slug' => 'spartans', 'code' => 'HAS-SPA'],
                     ['name' => 'Vikings Swimming Club', 'slug' => 'vikings-swimming-club', 'code' => 'HAS-VIK'],
-                    ['name' => 'Highlands Swimming Club', 'slug' => 'highlands-swimming-club', 'code' => 'HAS-HIG'],
-                    ['name' => 'Sharks Swimming Club', 'slug' => 'sharks-swimming-club', 'code' => 'HAS-SHA'],
-                    ['name' => 'Pirates Swimming Club', 'slug' => 'pirates-swimming-club', 'code' => 'HAS-PIR'],
+                    ['name' => 'Highlands', 'slug' => 'highlands', 'code' => 'HAS-HIG'],
+                    ['name' => 'Sharks', 'slug' => 'sharks', 'code' => 'HAS-SHA'],
+                    ['name' => 'Pirates Zimbabwe', 'slug' => 'pirates-zimbabwe', 'code' => 'HAS-PIR'],
                     ['name' => 'Wild Orcas Swimming Club', 'slug' => 'wild-orcas-swimming-club', 'code' => 'HAS-WIL'],
-                    ['name' => 'Otters Swimming Club', 'slug' => 'otters-swimming-club', 'code' => 'HAS-OTT'],
+                    ['name' => 'Harare Otters Swim Club', 'slug' => 'harare-otters-swim-club', 'code' => 'HAS-OTT'],
                 ],
             ],
             [
@@ -140,8 +176,8 @@ class OrganizationSeeder extends Seeder
                 'code' => 'BASA',
                 'city' => 'Bulawayo',
                 'clubs' => [
-                    ['name' => 'Stingrays Swimming Club', 'slug' => 'stingrays-swimming-club', 'code' => 'BAS-STI'],
-                    ['name' => 'Penguins Swimming Club', 'slug' => 'penguins-swimming-club', 'code' => 'BAS-PEN'],
+                    ['name' => 'Stingrays Swimming Academy', 'slug' => 'stingrays-swimming-academy', 'code' => 'BAS-STI'],
+                    ['name' => 'Penguins Club', 'slug' => 'penguins-club', 'code' => 'BAS-PEN'],
                     ['name' => 'School of Swimming', 'short_name' => 'SOS', 'slug' => 'school-of-swimming', 'code' => 'BAS-SOS'],
                     ['name' => 'Affiliated Crusaders Swimmers', 'slug' => 'affiliated-crusaders-swimmers', 'code' => 'BAS-ACS'],
                     ['name' => 'Black Marlins', 'slug' => 'black-marlins', 'code' => 'BAS-BLM'],
@@ -153,7 +189,7 @@ class OrganizationSeeder extends Seeder
                 'code' => 'MAN',
                 'city' => 'Mutare',
                 'clubs' => [
-                    ['name' => 'Border Dolphins', 'slug' => 'border-dolphins', 'code' => 'MAN-BOR'],
+                    ['name' => 'Border Dolphins Zimbabwe', 'slug' => 'border-dolphins-zimbabwe', 'code' => 'MAN-BOR'],
                 ],
             ],
             [
@@ -223,7 +259,7 @@ class OrganizationSeeder extends Seeder
                 'code' => 'CRC',
                 'description' => 'The body representing Zimbabwean swimmers based outside the country.',
                 'clubs' => [
-                    ['name' => 'CROCS', 'slug' => 'crocs-club', 'code' => 'CRC-CRC'],
+                    ['name' => 'Crocs', 'slug' => 'crocs-club', 'code' => 'CRC-CRC'],
                 ],
             ],
         ];

@@ -170,10 +170,17 @@ class GalaProgrammeController extends Controller
                 'required', 'integer',
                 Rule::exists('gala_sessions', 'id')->where('gala_id', $gala->getKey()),
             ],
+            /*
+             * Unique per round, not per gala. A programme with heats gives
+             * the heat and its final the same number — event 201 is swum
+             * twice, in the morning and the afternoon — so the number alone
+             * cannot be the thing that has to be unique.
+             */
             'event_number' => [
                 'required', 'integer', 'min:1', 'max:9999',
                 Rule::unique('gala_events', 'event_number')
                     ->where('gala_id', $gala->getKey())
+                    ->where('round', $request->string('round')->toString())
                     ->ignore($event?->getKey()),
             ],
             'gender' => ['required', Rule::in(['girls', 'boys', 'mixed'])],

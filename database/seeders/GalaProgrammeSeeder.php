@@ -16,7 +16,7 @@ class GalaProgrammeSeeder extends Seeder
     public function run(): void
     {
         $this->sprintGala();
-        $this->juniorLevelOneNationals();
+        $this->juniorLevelOneChampionships();
     }
 
     private function sprintGala(): void
@@ -148,7 +148,7 @@ class GalaProgrammeSeeder extends Seeder
     }
 
     /**
-     * The Zimbabwe Junior Level 1 Nationals, as printed in the National
+     * The National Junior Level 1 Championships, as printed in the National
      * Handbook 2026/2027.
      *
      * Three days: seeded finals on the Friday, then heats in the morning and
@@ -157,9 +157,9 @@ class GalaProgrammeSeeder extends Seeder
      * which is before this season opens; the dates used here are the ones
      * the same handbook's calendar gives for the meet.
      */
-    private function juniorLevelOneNationals(): void
+    private function juniorLevelOneChampionships(): void
     {
-        $gala = Gala::where('slug', 'junior-level-1-nationals-2027')->first();
+        $gala = Gala::where('slug', 'national-junior-level-1-championships-2027')->first();
 
         if ($gala === null) {
             return;

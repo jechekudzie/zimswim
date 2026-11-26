@@ -79,6 +79,8 @@ class CalendarSeeder extends Seeder
             // Was 'Zimbabwe Swimming National Development' until the
             // federation confirmed the correct name in November 2026.
             'national-development-2027' => 'junior-level-1-nationals-2027',
+            // And then confirmed it again from the programme's own title.
+            'junior-level-1-nationals-2027' => 'national-junior-level-1-championships-2027',
         ];
 
         foreach ($renamed as $was => $now) {
@@ -226,8 +228,8 @@ class CalendarSeeder extends Seeder
                 'qualifying_times_apply' => true,
             ],
             [
-                'name' => 'Zimbabwe Junior Level 1 Nationals',
-                'slug' => 'junior-level-1-nationals-2027',
+                'name' => 'National Junior Level 1 Championships',
+                'slug' => 'national-junior-level-1-championships-2027',
                 'host' => 'zimbabwe-swimming',
                 'level' => GalaLevel::National,
                 'starts_on' => '2027-03-12',

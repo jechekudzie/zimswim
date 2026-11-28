@@ -124,7 +124,7 @@ class CalendarSeeder extends Seeder
                 'no_show_fine' => 50.00,
                 'appeal_deposit' => 50.00,
                 'eligible_ages' => '8 years and above',
-                'entries_email' => 'zimswimnationalsentries@gmail.com',
+                'entries_email' => 'entries@zimbabweswimming.co.zw',
                 'description' => 'Swum under World Aquatics rules as separate gender, timed finals. Age groups are 9-10, 11/12, 13/14 and 15 & Over for 50m events, and 12/U, 13/14 and 15 & Over for 100m events. No qualifying times apply.',
             ],
             [
@@ -209,7 +209,7 @@ class CalendarSeeder extends Seeder
                 'no_show_fine' => 10.00,
                 'appeal_deposit' => 50.00,
                 'eligible_ages' => '10 to 16 years',
-                'entries_email' => 'zimswimnationalsentries@gmail.com',
+                'entries_email' => 'entries@zimbabweswimming.co.zw',
                 'qualifying_times_apply' => true,
                 'description' => 'Heats and finals on a separate gender basis. Swimmers aged 10 to 12 need a qualifying time; no qualifying times for 13 years and over. A swimmer must hold a 200m IM and a 200m freestyle time on the national database from 1 May 2026. All times are converted to long course.',
             ],
@@ -221,9 +221,9 @@ class CalendarSeeder extends Seeder
                 'level' => GalaLevel::National,
                 'starts_on' => '2027-02-18',
                 /*
-                 * The handbook's rules page and its calendar both end this
-                 * on the 22nd. Its programme page runs a session on the
-                 * 23rd, which is an error on that page and not a sixth day.
+                 * Thursday to Monday. The handbook's programme page skips
+                 * the 21st and so runs its last two days a day late, but
+                 * the championship itself ends on the 22nd.
                  */
                 'ends_on' => '2027-02-22',
                 'age_up_date' => '2027-12-31',
@@ -235,6 +235,7 @@ class CalendarSeeder extends Seeder
                 'no_show_fine' => 10.00,
                 'appeal_deposit' => 50.00,
                 'eligible_ages' => '13 years and above',
+                'entries_email' => 'entries@zimbabweswimming.co.zw',
                 'qualifying_times_apply' => true,
                 'description' => 'Swum as prelims and finals, except the 400m freestyle, 800m freestyle, 1500m freestyle, 200m butterfly and 400m IM, which are timed finals. Age is taken at 31 December 2027. Swimmers aged 13 and over need a qualifying time, and so do 11 and 12 year olds. The fastest eight per age group are drawn in the final with two reserves.',
             ],
@@ -247,6 +248,7 @@ class CalendarSeeder extends Seeder
                 'ends_on' => '2027-03-14',
                 'entry_fee' => 20.00,
                 'eligible_ages' => '8 to 12 years',
+                'entries_email' => 'entries@zimbabweswimming.co.zw',
             ],
         ];
     }

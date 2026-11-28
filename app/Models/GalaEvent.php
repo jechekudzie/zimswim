@@ -16,7 +16,8 @@ use Illuminate\Support\Carbon;
  * @property int $gala_id
  * @property int|null $gala_session_id
  * @property-read GalaSession|null $session
- * @property int $event_number
+ * @property int|null $event_number
+ * @property int $position
  * @property string $gender
  * @property string $age_group
  * @property int|null $min_age
@@ -83,7 +84,7 @@ class GalaEvent extends Model
      */
     public function finals(): HasMany
     {
-        return $this->hasMany(GalaEvent::class, 'parent_event_id')->orderBy('event_number');
+        return $this->hasMany(GalaEvent::class, 'parent_event_id')->orderBy('position')->orderBy('event_number');
     }
 
     /** @return HasMany<RelayTeam, $this> */

@@ -187,3 +187,56 @@ it('keeps the programme away from somebody who cannot edit the gala', function (
             'held_on' => $this->gala->starts_on->toDateString(),
         ])->assertForbidden();
 });
+
+it('takes a programme whose events are not numbered', function (): void {
+    $session = GalaSession::factory()->create(['gala_id' => $this->gala->getKey()]);
+
+    $payload = [
+        'gala_session_id' => $session->getKey(),
+        'gender' => 'girls',
+        'age_group' => '10, 11, 12, 13-14, 15-16',
+        'stroke' => Stroke::Breaststroke->value,
+        'distance' => 50,
+        'round' => 'timed_final',
+    ];
+
+    $this->actingAs($this->editor)
+        ->post(route('admin.galas.events.store', $this->gala), $payload)
+        ->assertRedirect();
+
+    $this->actingAs($this->editor)
+        ->post(route('admin.galas.events.store', $this->gala), [
+            ...$payload,
+            'gender' => 'boys',
+        ])->assertRedirect();
+
+    expect(GalaEvent::where('gala_id', $this->gala->getKey())->whereNull('event_number')->count())->toBe(2);
+
+    $this->gala->update(['is_published' => true]);
+
+    $this->get(route('galas.show', $this->gala))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('sessions.0.events.0.number', null)
+            ->where('sessions.0.events.0.gender', 'Girls')
+            ->where('sessions.0.events.1.gender', 'Boys')
+            ->etc());
+});
+
+it('keeps unnumbered events in the order they were entered', function (): void {
+    $session = GalaSession::factory()->create(['gala_id' => $this->gala->getKey()]);
+
+    foreach ([50, 100, 200] as $distance) {
+        $this->actingAs($this->editor)
+            ->post(route('admin.galas.events.store', $this->gala), [
+                'gala_session_id' => $session->getKey(),
+                'gender' => 'girls',
+                'age_group' => 'Open',
+                'stroke' => Stroke::Freestyle->value,
+                'distance' => $distance,
+                'round' => 'timed_final',
+            ])->assertRedirect();
+    }
+
+    expect($session->refresh()->events->pluck('distance')->all())->toBe([50, 100, 200]);
+});

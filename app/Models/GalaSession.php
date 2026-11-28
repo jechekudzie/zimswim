@@ -45,6 +45,6 @@ class GalaSession extends Model
     /** @return HasMany<GalaEvent, $this> */
     public function events(): HasMany
     {
-        return $this->hasMany(GalaEvent::class)->orderBy('event_number');
+        return $this->hasMany(GalaEvent::class)->orderBy('position')->orderBy('event_number');
     }
 }

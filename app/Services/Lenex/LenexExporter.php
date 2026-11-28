@@ -183,7 +183,7 @@ class LenexExporter
 
         $eventsElement = $document->createElement('EVENTS');
 
-        foreach ($events->sortBy('event_number') as $event) {
+        foreach ($events->sortBy(fn (GalaEvent $event): array => [$event->position, $event->event_number ?? 0]) as $event) {
             $eventsElement->appendChild($this->event($document, $event));
         }
 
@@ -196,7 +196,11 @@ class LenexExporter
     {
         $element = $document->createElement('EVENT');
         $element->setAttribute('eventid', (string) $event->getKey());
-        $element->setAttribute('number', (string) $event->event_number);
+        /*
+         * Lenex requires a number even where the printed programme has
+         * none, so an unnumbered event falls back to its running order.
+         */
+        $element->setAttribute('number', (string) ($event->event_number ?? $event->position));
         $element->setAttribute('gender', $this->gender($event->genderRestriction()));
         $element->setAttribute('round', $this->round($event->round));
 

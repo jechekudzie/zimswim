@@ -152,6 +152,7 @@ class FinalsService
             ->where('gala_id', $galaId)
             ->whereNotNull('parent_event_id')
             ->with('parent')
+            ->orderBy('position')
             ->orderBy('event_number')
             ->get();
     }

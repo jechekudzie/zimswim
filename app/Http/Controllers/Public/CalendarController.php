@@ -130,6 +130,7 @@ class CalendarController extends Controller
                 'warmup_at' => $session->warmup_at,
                 'starts_at' => $session->starts_at,
                 'events' => $session->events->map(fn ($event): array => [
+                    'id' => $event->getKey(),
                     'number' => $event->event_number,
                     'gender' => ucfirst($event->gender),
                     'age_group' => $event->age_group,

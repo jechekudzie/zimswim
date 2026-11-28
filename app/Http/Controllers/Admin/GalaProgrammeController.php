@@ -27,7 +27,7 @@ class GalaProgrammeController extends Controller
     {
         $this->authorize('view', $gala);
 
-        $gala->load(['sessions.events' => fn ($query) => $query->orderBy('event_number')]);
+        $gala->load(['sessions.events' => fn ($query) => $query->orderBy('position')->orderBy('event_number')]);
 
         return Inertia::render('admin/galas/programme', [
             'gala' => [
@@ -111,7 +111,11 @@ class GalaProgrammeController extends Controller
     {
         $this->authorize('update', $gala);
 
-        $gala->events()->create($this->validatedEvent($request, $gala));
+        $gala->events()->create([
+            ...$this->validatedEvent($request, $gala),
+            // Appended to the end of the programme, as a session is.
+            'position' => ($gala->events()->max('position') ?? 0) + 1,
+        ]);
 
         return back()->with('success', 'Event added.');
     }
@@ -175,9 +179,13 @@ class GalaProgrammeController extends Controller
              * the heat and its final the same number — event 201 is swum
              * twice, in the morning and the afternoon — so the number alone
              * cannot be the thing that has to be unique.
+             *
+             * Optional, because not every printed programme numbers its
+             * events. The Junior Nationals programme does not, and the
+             * running order carries it instead.
              */
             'event_number' => [
-                'required', 'integer', 'min:1', 'max:9999',
+                'nullable', 'integer', 'min:1', 'max:9999',
                 Rule::unique('gala_events', 'event_number')
                     ->where('gala_id', $gala->getKey())
                     ->where('round', $request->string('round')->toString())

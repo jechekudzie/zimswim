@@ -9,14 +9,29 @@ use App\Models\GalaSession;
 use Illuminate\Database\Seeder;
 
 /**
- * The published programme of events for the National Sprint Gala.
+ * The published programmes of events for the national galas.
+ *
+ * Every programme here is typed from the National Handbook 2026/2027. Where
+ * the handbook contradicts itself the deviation is noted against the gala it
+ * belongs to, so the next edition can be checked against it.
  */
 class GalaProgrammeSeeder extends Seeder
 {
+    /**
+     * The running order within the gala currently being seeded.
+     *
+     * The handbook's own numbering is not always in order, and one of the
+     * programmes has no numbers at all, so the order events are written in
+     * is what the programme is printed in.
+     */
+    private int $position = 0;
+
     public function run(): void
     {
         $this->sprintGala();
         $this->juniorLevelOneChampionships();
+        $this->seniorNationals();
+        $this->juniorNationals();
     }
 
     private function sprintGala(): void
@@ -64,6 +79,7 @@ class GalaProgrammeSeeder extends Seeder
             GalaEvent::updateOrCreate(
                 ['gala_id' => $gala->getKey(), 'event_number' => $number],
                 [
+                    'position' => $number,
                     'gala_session_id' => $session->getKey(),
                     'gender' => $gender,
                     'age_group' => $ageGroup,
@@ -94,6 +110,7 @@ class GalaProgrammeSeeder extends Seeder
             GalaEvent::updateOrCreate(
                 ['gala_id' => $gala->getKey(), 'event_number' => $number],
                 [
+                    'position' => $number,
                     'gala_session_id' => $session->getKey(),
                     'gender' => $gender,
                     'age_group' => 'Open',
@@ -133,6 +150,7 @@ class GalaProgrammeSeeder extends Seeder
             GalaEvent::updateOrCreate(
                 ['gala_id' => $gala->getKey(), 'event_number' => $pair['final']],
                 [
+                    'position' => $pair['final'],
                     'gala_session_id' => $session->getKey(),
                     'gender' => $pair['gender'],
                     'age_group' => 'Open',
@@ -164,6 +182,8 @@ class GalaProgrammeSeeder extends Seeder
         if ($gala === null) {
             return;
         }
+
+        $this->position = 0;
 
         $friday = $this->session($gala, 1, 'Friday', $gala->starts_on->toDateString(), null, '15:00');
         $saturdayHeats = $this->session($gala, 2, 'Saturday morning heats', $gala->starts_on->addDay()->toDateString(), '07:30', '09:00');
@@ -258,7 +278,222 @@ class GalaProgrammeSeeder extends Seeder
         }
     }
 
-    private function session(Gala $gala, int $position, string $name, string $heldOn, ?string $warmup, string $start): GalaSession
+    /**
+     * The Zimbabwe Senior National Championships, Bulawayo, 18-22 February 2027.
+     *
+     * Typed from the handbook's programme of events, with three deviations
+     * the federation's results convenor has confirmed and will amend in the
+     * next edition:
+     *
+     * 1. The printed programme skips the 21st, so its last two days are
+     *    headed a day late. They are seeded here on the 21st and the 22nd.
+     * 2. The last day is day five, so its events are numbered 5xx. The page
+     *    numbers the 200m individual medley finals 401 and 402, which the
+     *    100m butterfly finals already hold on the Sunday, and repeats the
+     *    Sunday heats in place of the Monday ones.
+     * 3. Saturday prints the 50m breaststroke heats twice and gives one
+     *    200m backstroke final the number of a 200m butterfly final. The
+     *    100m freestyle and 200m backstroke finals carry their own heats'
+     *    numbers here, as every other day's finals do.
+     */
+    private function seniorNationals(): void
+    {
+        $gala = Gala::where('slug', 'senior-nationals-2027')->first();
+
+        if ($gala === null) {
+            return;
+        }
+
+        $this->position = 0;
+
+        $thursday = $this->session($gala, 1, 'Thursday evening', '2027-02-18', null, '17:00');
+        $fridayHeats = $this->session($gala, 2, 'Friday morning heats', '2027-02-19', null, '09:00');
+        $fridayFinals = $this->session($gala, 3, 'Friday evening finals', '2027-02-19', null, '16:00');
+        $saturdayHeats = $this->session($gala, 4, 'Saturday morning heats', '2027-02-20', null, '09:00');
+        $saturdayFinals = $this->session($gala, 5, 'Saturday finals', '2027-02-20', null, null);
+        $sundayHeats = $this->session($gala, 6, 'Sunday morning heats', '2027-02-21', null, '09:00');
+        $sundayFinals = $this->session($gala, 7, 'Sunday evening finals', '2027-02-21', null, '15:30');
+        $mondayHeats = $this->session($gala, 8, 'Monday morning heats', '2027-02-22', null, '09:00');
+        $mondayFinals = $this->session($gala, 9, 'Monday mid-morning finals', '2027-02-22', null, null);
+
+        // The 400m freestyle opens the championship as a timed final.
+        foreach ([
+            [101, 'girls', '12 & Under'], [102, 'boys', '12 & Under'],
+            [103, 'girls', '13 Years'], [104, 'boys', '13 Years'],
+            [105, 'girls', '14 Years'], [106, 'boys', '14 Years'],
+            [107, 'girls', '15 Years'], [108, 'boys', '15 Years'],
+            [109, 'girls', '16 Years'], [110, 'boys', '16 Years'],
+            [111, 'girls', '17 & Over'], [112, 'boys', '17 & Over'],
+        ] as [$number, $gender, $age]) {
+            $this->event($gala, $thursday, $number, $gender, $age, 400, Stroke::Freestyle, 'timed_final');
+        }
+
+        /*
+         * Everything swum as prelims and finals. The handbook prints no age
+         * band against these, so none is claimed here; the gala's own rules
+         * carry who may enter.
+         */
+        $prelims = [
+            [$fridayHeats, $fridayFinals, [
+                [201, 'girls', 200, Stroke::Freestyle],
+                [202, 'boys', 200, Stroke::Freestyle],
+                [203, 'girls', 50, Stroke::Backstroke],
+                [204, 'boys', 50, Stroke::Backstroke],
+                [205, 'girls', 100, Stroke::Breaststroke],
+                [206, 'boys', 100, Stroke::Breaststroke],
+            ]],
+            [$saturdayHeats, $saturdayFinals, [
+                [301, 'girls', 100, Stroke::Freestyle],
+                [302, 'boys', 100, Stroke::Freestyle],
+                [303, 'girls', 200, Stroke::Backstroke],
+                [304, 'boys', 200, Stroke::Backstroke],
+            ]],
+            [$sundayHeats, $sundayFinals, [
+                [401, 'girls', 100, Stroke::Butterfly],
+                [402, 'boys', 100, Stroke::Butterfly],
+                [403, 'girls', 200, Stroke::Breaststroke],
+                [404, 'boys', 200, Stroke::Breaststroke],
+                [405, 'girls', 100, Stroke::Backstroke],
+                [406, 'boys', 100, Stroke::Backstroke],
+                [407, 'girls', 50, Stroke::Freestyle],
+                [408, 'boys', 50, Stroke::Freestyle],
+            ]],
+            [$mondayHeats, $mondayFinals, [
+                [501, 'girls', 200, Stroke::IndividualMedley],
+                [502, 'boys', 200, Stroke::IndividualMedley],
+                [503, 'girls', 50, Stroke::Butterfly],
+                [504, 'boys', 50, Stroke::Butterfly],
+            ]],
+        ];
+
+        foreach ($prelims as [$heatSession, $finalSession, $events]) {
+            foreach ($events as [$number, $gender, $distance, $stroke]) {
+                $heat = $this->event($gala, $heatSession, $number, $gender, 'Open', $distance, $stroke, 'heat');
+                $this->event($gala, $finalSession, $number, $gender, 'Open', $distance, $stroke, 'final', $heat);
+            }
+        }
+
+        // The one event whose final is numbered apart from its heat.
+        foreach ([[305, 309, 'girls'], [306, 310, 'boys']] as [$heatNumber, $finalNumber, $gender]) {
+            $heat = $this->event($gala, $saturdayHeats, $heatNumber, $gender, 'Open', 50, Stroke::Breaststroke, 'heat');
+            $this->event($gala, $saturdayFinals, $finalNumber, $gender, 'Open', 50, Stroke::Breaststroke, 'final', $heat);
+        }
+
+        // The distance events and the 200m butterfly are timed finals.
+        foreach ([
+            [$fridayFinals, 207, 'girls', '14 & Under', 400, Stroke::IndividualMedley],
+            [$fridayFinals, 208, 'boys', '14 & Under', 400, Stroke::IndividualMedley],
+            [$fridayFinals, 209, 'girls', '15 & Over', 400, Stroke::IndividualMedley],
+            [$fridayFinals, 210, 'boys', '15 & Over', 400, Stroke::IndividualMedley],
+            [$saturdayFinals, 307, 'girls', '14 & Under', 200, Stroke::Butterfly],
+            [$saturdayFinals, 308, 'boys', '14 & Under', 200, Stroke::Butterfly],
+            [$saturdayFinals, 311, 'girls', '15 & Over', 200, Stroke::Butterfly],
+            [$saturdayFinals, 312, 'boys', '15 & Over', 200, Stroke::Butterfly],
+            [$sundayFinals, 409, 'girls', '14 & Under', 800, Stroke::Freestyle],
+            [$sundayFinals, 410, 'boys', '14 & Under', 800, Stroke::Freestyle],
+            [$sundayFinals, 411, 'girls', '15 & Over', 800, Stroke::Freestyle],
+            [$sundayFinals, 412, 'boys', '15 & Over', 800, Stroke::Freestyle],
+            [$mondayFinals, 505, 'girls', '14 & Under', 1500, Stroke::Freestyle],
+            [$mondayFinals, 506, 'boys', '14 & Under', 1500, Stroke::Freestyle],
+            [$mondayFinals, 509, 'girls', '15 & Over', 1500, Stroke::Freestyle],
+            [$mondayFinals, 510, 'boys', '15 & Over', 1500, Stroke::Freestyle],
+        ] as [$session, $number, $gender, $age, $distance, $stroke]) {
+            $this->event($gala, $session, $number, $gender, $age, $distance, $stroke, 'timed_final');
+        }
+
+        foreach ([
+            [$fridayFinals, 211, 'girls', '14 & Under', 400, Stroke::FreestyleRelay],
+            [$fridayFinals, 212, 'boys', '14 & Under', 400, Stroke::FreestyleRelay],
+            [$fridayFinals, 213, 'girls', '15 & Over', 400, Stroke::FreestyleRelay],
+            [$fridayFinals, 214, 'boys', '15 & Over', 400, Stroke::FreestyleRelay],
+            [$saturdayFinals, 313, 'girls', '14 & Under', 400, Stroke::MedleyRelay],
+            [$saturdayFinals, 314, 'boys', '14 & Under', 400, Stroke::MedleyRelay],
+            [$saturdayFinals, 315, 'girls', '15 & Over', 400, Stroke::MedleyRelay],
+            [$saturdayFinals, 316, 'boys', '15 & Over', 400, Stroke::MedleyRelay],
+            [$sundayFinals, 415, 'girls', '14 & Under', 200, Stroke::FreestyleRelay],
+            [$sundayFinals, 416, 'boys', '14 & Under', 200, Stroke::FreestyleRelay],
+            [$sundayFinals, 417, 'girls', '15 & Over', 200, Stroke::FreestyleRelay],
+            [$sundayFinals, 418, 'boys', '15 & Over', 200, Stroke::FreestyleRelay],
+        ] as [$session, $number, $gender, $age, $distance, $stroke]) {
+            $this->event($gala, $session, $number, $gender, $age, $distance, $stroke, 'timed_final', null, true);
+        }
+    }
+
+    /**
+     * The Zimbabwe Junior National Championships, Les Brown, 29-31 January 2027.
+     *
+     * The handbook prints this one as a plain list of races with an empty
+     * Event column and no heats or finals split, each race carrying every
+     * age group on one line. The federation has asked for it to go up as
+     * printed rather than be numbered here, so it is: no event numbers, and
+     * the running order is the order it is printed in. The day headings in
+     * the handbook read "30th February" and "31st February"; the dates used
+     * here are the ones the federation gave.
+     */
+    private function juniorNationals(): void
+    {
+        $gala = Gala::where('slug', 'junior-nationals-2027')->first();
+
+        if ($gala === null) {
+            return;
+        }
+
+        $this->position = 0;
+
+        $individual = '10, 11, 12, 13-14, 15-16';
+        $relay = '12 & Under, 13 & Over';
+
+        $programme = [
+            [1, 'Friday', '2027-01-29', [
+                ['girls', $individual, 50, Stroke::Breaststroke],
+                ['boys', $individual, 50, Stroke::Breaststroke],
+                ['girls', $individual, 100, Stroke::Freestyle],
+                ['boys', $individual, 100, Stroke::Freestyle],
+                ['girls', $individual, 50, Stroke::Backstroke],
+                ['boys', $individual, 50, Stroke::Backstroke],
+                ['girls', $individual, 200, Stroke::IndividualMedley],
+                ['boys', $individual, 200, Stroke::IndividualMedley],
+                ['girls', $relay, 200, Stroke::MedleyRelay],
+                ['boys', $relay, 200, Stroke::MedleyRelay],
+                ['mixed', $relay, 200, Stroke::FreestyleRelay],
+            ]],
+            [2, 'Saturday', '2027-01-30', [
+                ['girls', $individual, 200, Stroke::Freestyle],
+                ['boys', $individual, 200, Stroke::Freestyle],
+                ['girls', $individual, 100, Stroke::Backstroke],
+                ['boys', $individual, 100, Stroke::Backstroke],
+                ['girls', $individual, 50, Stroke::Butterfly],
+                ['boys', $individual, 50, Stroke::Butterfly],
+                ['girls', $individual, 100, Stroke::Breaststroke],
+                ['boys', $individual, 100, Stroke::Breaststroke],
+                ['girls', $relay, 400, Stroke::FreestyleRelay],
+                ['boys', $relay, 400, Stroke::FreestyleRelay],
+            ]],
+            [3, 'Sunday', '2027-01-31', [
+                ['girls', $individual, 200, Stroke::Backstroke],
+                ['boys', $individual, 200, Stroke::Backstroke],
+                ['girls', $individual, 200, Stroke::Breaststroke],
+                ['boys', $individual, 200, Stroke::Breaststroke],
+                ['girls', $individual, 100, Stroke::Butterfly],
+                ['boys', $individual, 100, Stroke::Butterfly],
+                ['girls', $individual, 50, Stroke::Freestyle],
+                ['boys', $individual, 50, Stroke::Freestyle],
+                ['girls', $relay, 200, Stroke::FreestyleRelay],
+                ['boys', $relay, 200, Stroke::FreestyleRelay],
+                ['mixed', $relay, 200, Stroke::MedleyRelay],
+            ]],
+        ];
+
+        foreach ($programme as [$position, $name, $heldOn, $events]) {
+            $session = $this->session($gala, $position, $name, $heldOn, null, '08:00');
+
+            foreach ($events as [$gender, $age, $distance, $stroke]) {
+                $this->event($gala, $session, null, $gender, $age, $distance, $stroke, 'timed_final', null, $stroke->isRelay());
+            }
+        }
+    }
+
+    private function session(Gala $gala, int $position, string $name, string $heldOn, ?string $warmup, ?string $start): GalaSession
     {
         return GalaSession::updateOrCreate(
             ['gala_id' => $gala->getKey(), 'position' => $position],
@@ -276,7 +511,7 @@ class GalaProgrammeSeeder extends Seeder
     private function event(
         Gala $gala,
         GalaSession $session,
-        int $number,
+        ?int $number,
         string $gender,
         string $ageGroup,
         int $distance,
@@ -285,22 +520,72 @@ class GalaProgrammeSeeder extends Seeder
         ?GalaEvent $heat = null,
         bool $isRelay = false,
     ): GalaEvent {
-        $ages = array_map('intval', explode('/', $ageGroup));
+        [$minimum, $maximum] = $this->ages($ageGroup);
 
-        return GalaEvent::updateOrCreate(
-            ['gala_id' => $gala->getKey(), 'event_number' => $number, 'round' => $round],
-            [
-                'gala_session_id' => $session->getKey(),
-                'gender' => $gender,
-                'age_group' => $ageGroup,
-                'min_age' => min($ages),
-                'max_age' => max($ages),
-                'stroke' => $stroke,
-                'distance' => $distance,
-                'parent_event_id' => $heat?->getKey(),
-                'is_relay' => $isRelay,
-                'relay_legs' => $isRelay ? 4 : null,
-            ],
-        );
+        $attributes = [
+            'position' => ++$this->position,
+            'gala_session_id' => $session->getKey(),
+            'gender' => $gender,
+            'age_group' => $ageGroup,
+            'min_age' => $minimum,
+            'max_age' => $maximum,
+            'stroke' => $stroke,
+            'distance' => $distance,
+            'parent_event_id' => $heat?->getKey(),
+            'is_relay' => $isRelay,
+            'relay_legs' => $isRelay ? 4 : null,
+        ];
+
+        /*
+         * An unnumbered programme has nothing to key on but its own running
+         * order, so the position stands in for the number there.
+         */
+        return $number === null
+            ? GalaEvent::updateOrCreate(
+                ['gala_id' => $gala->getKey(), 'position' => $attributes['position']],
+                [...$attributes, 'event_number' => null, 'round' => $round],
+            )
+            : GalaEvent::updateOrCreate(
+                ['gala_id' => $gala->getKey(), 'event_number' => $number, 'round' => $round],
+                $attributes,
+            );
+    }
+
+    /**
+     * The ages a printed age band accepts.
+     *
+     * The band is stored as the handbook prints it — "15 & Over", "13-14",
+     * "7/8" — and the ages are read off that, so the entry checks and the
+     * printed programme cannot drift apart.
+     *
+     * @return array{0: int|null, 1: int|null}
+     */
+    private function ages(string $ageGroup): array
+    {
+        $band = strtolower($ageGroup);
+
+        if (str_contains($band, 'open')) {
+            return [null, null];
+        }
+
+        preg_match_all('/\d+/', $band, $matches);
+
+        $ages = array_map('intval', $matches[0]);
+
+        if ($ages === []) {
+            return [null, null];
+        }
+
+        $under = str_contains($band, 'under') || str_contains($band, '&u');
+        $over = str_contains($band, 'over') || str_contains($band, '&o');
+
+        return match (true) {
+            // A band written as both, such as the relays' "12&U, 13 &O",
+            // is open to everybody at the gala.
+            $under && $over => [null, null],
+            $under => [null, max($ages)],
+            $over => [min($ages), null],
+            default => [min($ages), max($ages)],
+        };
     }
 }

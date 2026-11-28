@@ -47,7 +47,8 @@ type Session = {
     warmup_at: string | null;
     starts_at: string | null;
     events: {
-        number: number;
+        id: number;
+        number: number | null;
         gender: string;
         age_group: string;
         distance: number;
@@ -78,6 +79,25 @@ export default function GalaPage({
     gala: GalaDetail;
     sessions: Session[];
 }) {
+    /*
+     * Not every printed programme numbers its events. Where none of them
+     * do, the column is dropped rather than left as a row of blanks.
+     */
+    const numbered = sessions.some((session) =>
+        session.events.some((event) => event.number !== null),
+    );
+
+    /*
+     * Where a programme is swum entirely one way — every race a timed final,
+     * say — the round is a column of the same word, so it is dropped.
+     */
+    const rounds = new Set(
+        sessions.flatMap((session) =>
+            session.events.map((event) => event.round),
+        ),
+    );
+    const staged = rounds.size > 1;
+
     const dateRange =
         gala.starts_on === gala.ends_on
             ? longDate(gala.starts_on)
@@ -233,29 +253,35 @@ export default function GalaPage({
                                         <table className="w-full text-sm">
                                             <thead className="border-b border-border text-left text-xs tracking-wide text-muted-foreground uppercase">
                                                 <tr>
-                                                    <th className="px-5 py-2.5 font-medium">
-                                                        Event
-                                                    </th>
+                                                    {numbered && (
+                                                        <th className="px-5 py-2.5 font-medium">
+                                                            Event
+                                                        </th>
+                                                    )}
                                                     <th className="px-5 py-2.5 font-medium">
                                                         Age group
                                                     </th>
                                                     <th className="px-5 py-2.5 font-medium">
                                                         Race
                                                     </th>
-                                                    <th className="px-5 py-2.5 font-medium">
-                                                        Round
-                                                    </th>
+                                                    {staged && (
+                                                        <th className="px-5 py-2.5 font-medium">
+                                                            Round
+                                                        </th>
+                                                    )}
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {session.events.map((event) => (
                                                     <tr
-                                                        key={event.number}
+                                                        key={event.id}
                                                         className="border-b border-border/60 last:border-0"
                                                     >
-                                                        <td className="px-5 py-2.5 font-medium tabular-nums">
-                                                            {event.number}
-                                                        </td>
+                                                        {numbered && (
+                                                            <td className="px-5 py-2.5 font-medium tabular-nums">
+                                                                {event.number}
+                                                            </td>
+                                                        )}
                                                         <td className="px-5 py-2.5 text-muted-foreground">
                                                             {event.gender}{' '}
                                                             {event.age_group}
@@ -264,9 +290,11 @@ export default function GalaPage({
                                                             {event.distance}m{' '}
                                                             {event.stroke}
                                                         </td>
-                                                        <td className="px-5 py-2.5 text-muted-foreground capitalize">
-                                                            {event.round}
-                                                        </td>
+                                                        {staged && (
+                                                            <td className="px-5 py-2.5 text-muted-foreground capitalize">
+                                                                {event.round}
+                                                            </td>
+                                                        )}
                                                     </tr>
                                                 ))}
                                             </tbody>

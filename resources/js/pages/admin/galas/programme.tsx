@@ -15,7 +15,7 @@ import type { Option } from '@/types';
 
 type Event = {
     id: number;
-    event_number: number;
+    event_number: number | null;
     gender: string;
     age_group: string;
     min_age: number | null;
@@ -97,7 +97,7 @@ export default function GalaProgramme({
         Math.max(
             0,
             ...sessions.flatMap((session) =>
-                session.events.map((event) => event.event_number),
+                session.events.map((event) => event.event_number ?? 0),
             ),
         ) + 1;
 
@@ -281,7 +281,7 @@ export default function GalaProgramme({
                                         {session.events.map((event) => (
                                             <tr key={event.id}>
                                                 <td className="px-5 py-2.5 font-mono text-xs">
-                                                    {event.event_number}
+                                                    {event.event_number ?? '—'}
                                                 </td>
                                                 <td className="px-5 py-2.5">
                                                     {event.gender === 'mixed'
